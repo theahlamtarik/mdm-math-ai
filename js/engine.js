@@ -248,15 +248,13 @@ const App = {
         <div class="challenge-card ${done ? 'completed' : ''}"
              style="--card-gradient: ${c.gradient}; animation-delay: ${i * 0.05}s"
              onclick="App.startChallenge('${c.id}')">
-          <span class="card-emoji">${c.emoji}</span>
+          <div class="card-top-row">
+            <span class="card-emoji">${c.emoji}</span>
+            <span class="card-pts-badge ${done ? 'earned' : ''}">${done ? `${score} pts` : '+100 pts'}</span>
+          </div>
           <h3 class="card-title">${c.title}</h3>
           <p class="card-concept">${c.concept}</p>
           <p class="card-teaser">${c.teaser}</p>
-          <div class="card-score">
-            ${done
-              ? `✓ Score: ${score} pts`
-              : '<span class="card-score-empty">Not attempted</span>'}
-          </div>
         </div>
       `;
     }).join('');
