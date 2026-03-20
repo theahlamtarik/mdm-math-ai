@@ -1,240 +1,1265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI × Math = Fun | MDM Math Maroc</title>
-  <meta name="description" content="Interactive math challenges revealing the surprising mathematics behind artificial intelligence. MDM Math Maroc Festival.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI × MATH — MDM Math Maroc 2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════ TOKENS ═══════ */
+:root {
+  --ink:#07080F; --navy:#0B0D1A; --white:#F7F6F1; --paper:#EFEDE5;
+  --blue:#0047FF; --gold:#E8A020; --teal:#00B88A; --red:#FF2D55;
+  --gray:#6E6E7E; --mist:#E8E6DE; --line:rgba(7,8,15,.08);
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Libre Baskerville',serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:var(--sans);color:var(--ink);background:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+/* ═══════ TYPOGRAPHY ═══════ */
+h1{font-size:clamp(2rem,6vw,4.5rem);font-weight:700;letter-spacing:-.03em;line-height:1.05;}
+h2{font-size:clamp(1.4rem,3.5vw,2.2rem);font-weight:600;letter-spacing:-.02em;line-height:1.15;}
+h3{font-size:clamp(1.1rem,2.5vw,1.5rem);font-weight:600;letter-spacing:-.01em;}
+p,.body-text{font-size:1rem;line-height:1.65;color:var(--gray);}
+.mono{font-family:var(--mono);font-size:.85rem;}
+.serif-i{font-family:var(--serif);font-style:italic;}
+
+/* ═══════ LAYOUT ═══════ */
+.screen{display:none;min-height:100vh;min-height:100dvh;padding:1.5rem;position:relative;}
+.screen.active{display:flex;flex-direction:column;animation:fadeUp .5s var(--ease);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.container{max-width:900px;width:100%;margin:0 auto;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+
+/* ═══════ HUD ═══════ */
+#hud{position:fixed;top:0;left:0;right:0;z-index:100;display:none;padding:.75rem 1.5rem;background:rgba(11,13,26,.92);backdrop-filter:blur(12px);color:var(--white);font-family:var(--mono);font-size:.8rem;align-items:center;justify-content:space-between;}
+#hud.show{display:flex;}
+#hud .pts{color:var(--gold);font-weight:700;font-size:1rem;}
+#hud .dots{display:flex;gap:6px;}
+#hud .dot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);transition:all .3s var(--ease);}
+#hud .dot.done{background:var(--teal);border-color:var(--teal);}
+#hud .dot.current{border-color:var(--gold);box-shadow:0 0 8px var(--gold);}
+.hud-back{background:none;border:1px solid rgba(255,255,255,.2);color:var(--white);padding:4px 12px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:.75rem;transition:all .2s;}
+.hud-back:hover{background:rgba(255,255,255,.1);}
+
+/* ═══════ HERO ═══════ */
+#hero{background:var(--navy);color:var(--white);justify-content:center;align-items:center;text-align:center;gap:1.5rem;}
+#hero h1 span{color:var(--blue);}
+#hero .sub{font-family:var(--mono);font-size:clamp(.75rem,2vw,1rem);color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;}
+#hero .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1rem,2.5vw,1.3rem);color:rgba(255,255,255,.6);max-width:500px;}
+
+/* ═══════ BUTTONS ═══════ */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:8px;font-family:var(--sans);font-weight:600;font-size:1rem;cursor:pointer;border:none;transition:all .25s var(--ease);text-decoration:none;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,71,255,.35);}
+.btn-dark{background:var(--ink);color:#fff;}
+.btn-outline{background:transparent;border:2px solid var(--ink);color:var(--ink);}
+.btn-outline:hover{background:var(--ink);color:var(--white);}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-sm{padding:8px 18px;font-size:.85rem;border-radius:6px;}
+
+/* ═══════ REGISTER ═══════ */
+#register{justify-content:center;align-items:center;text-align:center;gap:2rem;}
+#register input{font-family:var(--mono);font-size:1.1rem;padding:14px 20px;border:2px solid var(--mist);border-radius:8px;width:min(100%,400px);text-align:center;transition:border .2s;}
+#register input:focus{outline:none;border-color:var(--blue);}
+
+/* ═══════ GRID ═══════ */
+#grid{padding-top:5rem;}
+.grid-title{text-align:center;margin-bottom:2.5rem;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;max-width:900px;margin:0 auto;}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1.5rem;cursor:pointer;transition:all .3s var(--ease);position:relative;overflow:hidden;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.08);}
+.card.completed{border-color:var(--teal);}
+.card .num{font-family:var(--mono);font-size:.7rem;color:var(--gray);letter-spacing:.15em;text-transform:uppercase;}
+.card .icon{font-size:2rem;margin:.5rem 0;}
+.card h3{font-size:1rem;margin-bottom:.25rem;}
+.card .concept{font-family:var(--mono);font-size:.7rem;color:var(--blue);margin-bottom:.5rem;}
+.card .desc{font-size:.8rem;color:var(--gray);line-height:1.5;}
+.card .pts-badge{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:.7rem;padding:3px 10px;border-radius:20px;background:var(--paper);color:var(--gray);}
+.card.completed .pts-badge{background:var(--teal);color:#fff;}
+
+/* ═══════ CHALLENGE SCREEN ═══════ */
+.ch-screen{padding-top:5rem;}
+.ch-header{text-align:center;margin-bottom:2rem;}
+.ch-header .ch-num{font-family:var(--mono);font-size:.75rem;color:var(--blue);letter-spacing:.15em;text-transform:uppercase;}
+.ch-header .ch-icon{font-size:2.5rem;margin:.5rem 0;}
+.question-box{background:var(--navy);color:var(--white);padding:2rem;border-radius:12px;font-family:var(--serif);font-style:italic;font-size:clamp(.95rem,2.5vw,1.15rem);line-height:1.7;margin-bottom:1.5rem;}
+.question-box strong{color:var(--gold);font-style:normal;}
+
+/* ═══════ HINT PILLS ═══════ */
+.hints{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;}
+.hint-pill{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--paper);border:1px solid var(--mist);border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.8rem;color:var(--gray);transition:all .3s var(--ease);user-select:none;}
+.hint-pill:hover{border-color:var(--blue);color:var(--ink);}
+.hint-pill .hint-icon{font-size:1rem;}
+.hint-content{display:none;padding:12px 16px;background:#fff;border:1px solid var(--mist);border-radius:0 0 8px 8px;margin-top:-1px;font-family:var(--mono);font-size:.82rem;line-height:1.6;animation:slideDown .3s var(--ease);}
+.hint-content.show{display:block;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══════ CHOICES ═══════ */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1.5rem 0;}
+@media(max-width:500px){.choices{grid-template-columns:1fr;}}
+.choice-btn{padding:14px 20px;border:2px solid var(--mist);border-radius:8px;background:#fff;font-family:var(--sans);font-size:.95rem;cursor:pointer;transition:all .2s var(--ease);text-align:left;}
+.choice-btn:hover{border-color:var(--blue);background:rgba(0,71,255,.03);}
+.choice-btn.selected{border-color:var(--blue);background:rgba(0,71,255,.06);}
+.choice-btn.correct{border-color:var(--teal);background:rgba(0,184,138,.08);color:var(--teal);}
+.choice-btn.wrong{border-color:var(--red);background:rgba(255,45,85,.06);color:var(--red);}
+
+/* ═══════ PROOF BLOCK ═══════ */
+.proof-block{background:var(--navy);color:var(--white);padding:1.5rem 2rem;border-radius:12px;font-family:var(--mono);font-size:.8rem;line-height:1.8;white-space:pre-wrap;margin:1.5rem 0;overflow-x:auto;}
+.proof-block .qed{color:var(--gold);font-weight:700;}
+
+/* ═══════ AI LINK ═══════ */
+.ai-link{background:linear-gradient(135deg,rgba(0,71,255,.06),rgba(0,184,138,.06));border:1px solid rgba(0,71,255,.15);border-radius:12px;padding:1.5rem;margin:1rem 0;}
+.ai-link .ai-label{font-family:var(--mono);font-size:.7rem;color:var(--blue);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;}
+.ai-link p{font-size:.9rem;line-height:1.6;color:var(--ink);}
+
+/* ═══════ CANVAS/INTERACTIVE ═══════ */
+.canvas-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:1rem 0;position:relative;}
+.canvas-wrap canvas{display:block;width:100%;height:auto;}
+
+/* ═══════ SLIDER ═══════ */
+.slider-row{display:flex;align-items:center;gap:1rem;margin:1rem 0;}
+.slider-row label{font-family:var(--mono);font-size:.8rem;min-width:60px;}
+.slider-row input[type=range]{flex:1;accent-color:var(--blue);}
+.slider-row .val{font-family:var(--mono);font-size:.9rem;font-weight:700;min-width:50px;text-align:right;}
+
+/* ═══════ SCORE TOAST ═══════ */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:8px;font-family:var(--mono);font-weight:700;font-size:1rem;z-index:200;animation:toastIn .5s var(--ease);pointer-events:none;}
+.toast.good{background:var(--teal);color:#fff;}
+.toast.bad{background:var(--red);color:#fff;}
+.toast.info{background:var(--navy);color:var(--white);}
+@keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(-20px);}100%{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* ═══════ FINALE ═══════ */
+#finale{background:var(--navy);color:var(--white);justify-content:center;align-items:center;text-align:center;gap:2rem;}
+#finale .final-score{font-family:var(--mono);font-size:3rem;color:var(--gold);font-weight:700;}
+
+/* ═══════ LEADERBOARD ═══════ */
+#leaderboard{padding-top:5rem;}
+.lb-table{width:100%;max-width:600px;margin:2rem auto;border-collapse:collapse;}
+.lb-table th,.lb-table td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);}
+.lb-table th{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray);}
+.lb-table .rank-1{color:var(--gold);font-weight:700;}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media(max-width:600px){
+  .screen{padding:1rem;}
+  .question-box{padding:1.25rem;font-size:.9rem;}
+  .proof-block{padding:1rem;font-size:.72rem;}
+  .cards{grid-template-columns:1fr;}
+  #hud{padding:.5rem 1rem;font-size:.7rem;}
+}
+</style>
 </head>
 <body>
 
-  <!-- ==================== LANDING PAGE ==================== -->
-  <section id="landing" class="section active">
-    <canvas id="landing-canvas"></canvas>
-    <div class="landing-content">
-      <div class="landing-badge">MDM Math Maroc 2026</div>
-      <h1 class="landing-title">
-        <span class="title-ai">AI</span>
-        <span class="title-times">×</span>
-        <span class="title-math">MATH</span>
-      </h1>
-      <div class="landing-equals">=</div>
-      <div class="landing-result" id="landing-result"></div>
-      <p class="landing-subtitle">8 enigmas. Pure math. Real AI. Zero lectures.</p>
-      <button class="btn btn-glow" id="btn-start" onclick="App.showSection('register')">
-        <span>Enter the Game</span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-    <div class="landing-footer">
-      <span>By Ahlam Tarik</span>
-      <span>•</span>
-      <span>EIDIA — Euromed University of Fes</span>
-    </div>
-  </section>
+<!-- ═══════ HUD ═══════ -->
+<div id="hud">
+  <button class="hud-back" onclick="nav('grid')">← Back</button>
+  <div class="dots" id="hud-dots"></div>
+  <div class="pts"><span id="hud-pts">0</span> pts</div>
+</div>
 
-  <!-- ==================== REGISTRATION ==================== -->
-  <section id="register" class="section">
-    <div class="register-container">
-      <div class="register-icon">🧠</div>
-      <h2>Who dares to play?</h2>
-      <p class="register-desc">Enter your name to join the leaderboard. Complete <strong>3 challenges</strong> to unlock the Grand Finale.</p>
-      <div class="input-group">
-        <input type="text" id="player-name" placeholder="Your name..." maxlength="20" autocomplete="off">
-        <button class="btn btn-primary" id="btn-register" onclick="App.registerPlayer()">
-          Let's Go
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-      <div class="register-error" id="register-error"></div>
-    </div>
-  </section>
+<!-- ═══════ HERO ═══════ -->
+<div class="screen active" id="hero">
+  <div class="sub">MDM Math Maroc 2025</div>
+  <h1>AI <span>×</span> MATH<br>= Fun</h1>
+  <p class="tagline">8 enigmas. Real math. Real AI. Can you solve them all?</p>
+  <button class="btn btn-primary" onclick="nav('register')">Start the Challenge →</button>
+</div>
 
-  <!-- ==================== CHALLENGE HUB ==================== -->
-  <section id="hub" class="section">
-    <div class="hub-header">
-      <div class="hub-top-bar">
-        <div class="player-info">
-          <span class="player-avatar" id="hub-avatar">A</span>
-          <span class="player-name-display" id="hub-player-name">Player</span>
-        </div>
-        <div class="score-display">
-          <span class="score-label">SCORE</span>
-          <span class="score-value" id="hub-score">0</span>
-        </div>
-      </div>
-      <h2 class="hub-title">Choose Your Challenge</h2>
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill" id="hub-progress"></div>
-        </div>
-        <span class="progress-text" id="hub-progress-text">0 / 8 completed</span>
-      </div>
-    </div>
-    <div class="challenge-grid" id="challenge-grid">
-      <!-- Generated by JS -->
-    </div>
-    <div class="hub-finale-unlock" id="finale-unlock" style="display:none;">
-      <button class="btn btn-finale" onclick="App.showSection('finale')">
-        🏆 Unlock the Grand Finale
-      </button>
-    </div>
-    <div class="hub-leaderboard-btn">
-      <button class="btn btn-ghost" onclick="App.showSection('leaderboard')">
-        📊 View Leaderboard
-      </button>
-    </div>
-  </section>
+<!-- ═══════ REGISTER ═══════ -->
+<div class="screen" id="register">
+  <h2>Enter your name</h2>
+  <p class="body-text">This goes on the leaderboard.</p>
+  <input type="text" id="nameInput" placeholder="Your name" maxlength="20" autofocus>
+  <button class="btn btn-dark" onclick="startGame()">Let's Go →</button>
+</div>
 
-  <!-- ==================== CHALLENGE VIEW (template for all) ==================== -->
-  <section id="challenge-view" class="section">
-    <div class="challenge-header">
-      <button class="btn btn-back" onclick="App.showSection('hub')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Back
-      </button>
-      <div class="challenge-progress-mini">
-        <span id="challenge-number">1/8</span>
-      </div>
-      <div class="challenge-timer" id="challenge-timer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        <span id="timer-display">0:00</span>
-      </div>
+<!-- ═══════ GRID ═══════ -->
+<div class="screen" id="grid">
+  <div class="grid-title">
+    <h2>Choose Your Challenge</h2>
+    <p class="body-text" id="grid-sub">0 / 8 completed · 0 pts</p>
+  </div>
+  <div class="cards" id="card-grid"></div>
+  <div style="text-align:center;margin-top:2rem;">
+    <button class="btn btn-gold" id="finale-btn" style="display:none;" onclick="nav('finale')">🏆 Grand Finale →</button>
+  </div>
+</div>
+
+<!-- ═══════ 8 CHALLENGE SCREENS (generated by JS) ═══════ -->
+<div id="challenge-screens"></div>
+
+<!-- ═══════ FINALE ═══════ -->
+<div class="screen" id="finale">
+  <div class="sub">Grand Finale</div>
+  <h1>Your Score</h1>
+  <div class="final-score" id="final-score">0</div>
+  <p class="tagline" id="finale-msg">Math saves lives.</p>
+  <button class="btn btn-primary" onclick="nav('leaderboard')">See Leaderboard →</button>
+</div>
+
+<!-- ═══════ LEADERBOARD ═══════ -->
+<div class="screen" id="leaderboard">
+  <div class="container" style="text-align:center;">
+    <h2>🏆 Leaderboard</h2>
+    <table class="lb-table">
+      <thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+    <button class="btn btn-outline" onclick="nav('hero')" style="margin-top:2rem;">Play Again</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   GAME ENGINE
+═══════════════════════════════════════ */
+const CARDS=[
+  {key:'c1',num:'01',icon:'🍊',title:'The Vanishing Core',concept:'Curse of Dimensionality',desc:'Where do random points live in high dimensions?',pts:100,color:'#FF6B35'},
+  {key:'c2',num:'02',icon:'👁',title:'The Invisible Attack',concept:'Adversarial Examples',desc:'Can invisible noise fool an AI?',pts:110,color:'#0047FF'},
+  {key:'c3',num:'03',icon:'🎯',title:'Beat the Neural Net',concept:'Overfitting',desc:'Can you draw a better boundary than AI?',pts:115,color:'#FF2D55'},
+  {key:'c4',num:'04',icon:'👑',title:'Word Math Race',concept:'Word Vectors',desc:'King − Man + Woman = ?',pts:300,color:'#E8A020'},
+  {key:'c5',num:'05',icon:'🚪',title:'The Monty Hall Trap',concept:"Bayes' Theorem",desc:'Should you switch doors?',pts:100,color:'#9B59B6'},
+  {key:'c6',num:'06',icon:'⚡',title:'The Learning Rate Race',concept:'Finding the Minimum',desc:'Find the minimum with f\'(x)',pts:120,color:'#00B88A'},
+  {key:'c7',num:'07',icon:'🔦',title:'The Attention Spotlight',concept:'How AI Reads',desc:'Which word does the AI focus on?',pts:150,color:'#0047FF'},
+  {key:'c8',num:'08',icon:'💓',title:'Are You Smarter Than T-MECA?',concept:'ECG Classification',desc:'Can you beat 98.41% accuracy?',pts:120,color:'#FF2D55'},
+];
+
+let G={name:'',pts:0,done:{},scores:{},lb:[]};
+
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el) el.classList.add('active');
+  const hud=document.getElementById('hud');
+  if(['grid','finale','leaderboard','hero','register'].includes(id)){
+    hud.classList.remove('show');
+  } else {
+    hud.classList.add('show');
+  }
+  if(id==='grid') renderGrid();
+  if(id==='finale') showFinale();
+  if(id==='leaderboard') showLB();
+  window.scrollTo(0,0);
+}
+
+function startGame(){
+  const n=document.getElementById('nameInput').value.trim();
+  if(!n){toast('Enter your name!','bad');return;}
+  G.name=n; G.pts=0; G.done={}; G.scores={};
+  nav('grid');
+}
+
+function renderGrid(){
+  const g=document.getElementById('card-grid');
+  g.innerHTML='';
+  let doneCount=0;
+  CARDS.forEach(c=>{
+    const isDone=G.done[c.key];
+    if(isDone) doneCount++;
+    const score=G.scores[c.key]||0;
+    g.innerHTML+=`
+      <div class="card ${isDone?'completed':''}" onclick="startChallenge('${c.key}')" style="border-left:3px solid ${c.color}">
+        <div class="pts-badge">${isDone?score+' pts':'+'+c.pts+' pts'}</div>
+        <div class="num">${c.num}</div>
+        <div class="icon">${c.icon}</div>
+        <h3>${c.title}</h3>
+        <div class="concept">${c.concept}</div>
+        <div class="desc">${c.desc}</div>
+      </div>`;
+  });
+  document.getElementById('grid-sub').textContent=`${doneCount} / 8 completed · ${G.pts} pts`;
+  document.getElementById('finale-btn').style.display=doneCount>=6?'inline-flex':'none';
+  renderHudDots();
+}
+
+function renderHudDots(){
+  const d=document.getElementById('hud-dots');
+  d.innerHTML='';
+  CARDS.forEach(c=>{
+    d.innerHTML+=`<div class="dot ${G.done[c.key]?'done':''}"></div>`;
+  });
+  document.getElementById('hud-pts').textContent=G.pts;
+}
+
+function addPts(key,pts){
+  G.scores[key]=pts;
+  G.pts+=pts;
+  G.done[key]=true;
+  renderHudDots();
+  toast(`+${pts} pts!`,'good');
+}
+
+function toast(msg,type='info'){
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+function showFinale(){
+  document.getElementById('final-score').textContent=G.pts;
+}
+function showLB(){
+  if(!G.lb.find(e=>e.name===G.name)) G.lb.push({name:G.name,score:G.pts});
+  G.lb.sort((a,b)=>b.score-a.score);
+  const b=document.getElementById('lb-body');
+  b.innerHTML='';
+  G.lb.forEach((e,i)=>{
+    b.innerHTML+=`<tr class="${i===0?'rank-1':''}"><td>${i+1}</td><td>${e.name}</td><td>${e.score}</td></tr>`;
+  });
+}
+
+/* ═══════════════════════════════════════
+   CHALLENGE GENERATION
+═══════════════════════════════════════ */
+function startChallenge(key){
+  nav(key);
+  if(window['init_'+key]) window['init_'+key]();
+}
+
+function toggleHint(el){
+  const content=el.nextElementSibling;
+  content.classList.toggle('show');
+}
+
+function buildScreen(key,html){
+  const wrap=document.createElement('div');
+  wrap.className='screen ch-screen';
+  wrap.id=key;
+  wrap.innerHTML=html;
+  document.getElementById('challenge-screens').appendChild(wrap);
+}
+
+/* ═══════════════════════════════════════
+   CH1: THE VANISHING CORE
+═══════════════════════════════════════ */
+buildScreen('c1',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 01</div>
+    <div class="ch-icon">🍊</div>
+    <h2>The Vanishing Core</h2>
+  </div>
+  <div class="question-box">
+    Imagine a ball in <strong>d dimensions</strong>. Think of it like an orange: the <strong>skin</strong> is the outer layer (thickness ε), the <strong>core</strong> is everything inside.<br><br>
+    Now generate a random point in the ball.<br>
+    What is the probability that this point lands in the skin?<br>
+    <strong>What happens to this probability as d → ∞?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">The fraction of the ball that is "skin" equals: <strong>1 − (1 − ε)<sup>d</sup></strong></div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Try computing the limit: <strong>lim<sub>d→∞</sub> (1 − ε)<sup>d</sup> = ?</strong> for any ε > 0.</div>
+  </div>
+  <div class="choices" id="c1-choices">
+    <button class="choice-btn" onclick="c1_answer(this,0)">A) It goes to 0 — most points stay deep inside</button>
+    <button class="choice-btn" onclick="c1_answer(this,1)">B) It stays around 0.5</button>
+    <button class="choice-btn" onclick="c1_answer(this,2)">C) It goes to 0.99</button>
+    <button class="choice-btn" onclick="c1_answer(this,3)">D) It goes to 1 — ALL points are near the boundary</button>
+  </div>
+  <div id="c1-viz" style="display:none;">
+    <h3 style="margin:1rem 0 .5rem;">Watch it happen:</h3>
+    <div class="canvas-wrap"><canvas id="c1-canvas" width="500" height="500"></canvas></div>
+    <div style="display:flex;gap:1rem;align-items:center;margin:1rem 0;flex-wrap:wrap;">
+      <span class="mono">d = <strong id="c1-dim">3</strong></span>
+      <button class="btn btn-sm btn-outline" onclick="c1_increase()">Increase d →</button>
+      <span class="mono" id="c1-skin-pct">3% in skin</span>
     </div>
-    <div class="challenge-body" id="challenge-body">
-      <!-- Dynamically populated by each challenge module -->
+  </div>
+  <div id="c1-proof" style="display:none;">
+    <div class="proof-block">Fix ε > 0. The "skin" of thickness ε is:
+    {x ∈ Bᵈ : 1 − ε ≤ ‖x‖ ≤ 1}
+
+Its probability mass is:
+    P(R ≥ 1 − ε) = 1 − (1 − ε)^d
+
+As d → ∞:
+    (1 − ε)^d → 0
+
+So:
+    P(R ≥ 1 − ε) → 1
+
+Thus, for large d, almost every point lies in the
+outer shell of thickness ε. The core vanishes. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 2012, a neural network called AlexNet processed images as vectors in 4096 dimensions. In that space, every image sits near the surface. Distance between a cat photo and a dog photo? Almost the same as between a cat and a car. This is why AI had to invent smarter ways to compare data.</p>
     </div>
-    <div class="challenge-footer" id="challenge-footer" style="display:none;">
-      <div class="challenge-result" id="challenge-result"></div>
-      <div class="challenge-explanation" id="challenge-explanation"></div>
-      <button class="btn btn-primary" onclick="App.finishChallenge()">
-        Continue
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+let c1_dims=[3,10,50,200], c1_dimIdx=0, c1_answered=false;
+function c1_answer(btn,idx){
+  if(c1_answered) return;
+  c1_answered=true;
+  document.querySelectorAll('#c1-choices .choice-btn').forEach((b,i)=>{
+    if(i===3) b.classList.add('correct');
+    else if(i===idx&&idx!==3) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  const pts=idx===3?100:30;
+  addPts('c1',pts);
+  document.getElementById('c1-viz').style.display='block';
+  c1_dimIdx=0;
+  c1_draw(c1_dims[0]);
+}
+function c1_increase(){
+  c1_dimIdx=Math.min(c1_dimIdx+1,c1_dims.length-1);
+  c1_draw(c1_dims[c1_dimIdx]);
+  if(c1_dimIdx===c1_dims.length-1){
+    setTimeout(()=>{document.getElementById('c1-proof').style.display='block';},800);
+  }
+}
+function c1_draw(d){
+  document.getElementById('c1-dim').textContent=d;
+  const eps=0.01, skinPct=((1-Math.pow(1-eps,d))*100).toFixed(1);
+  document.getElementById('c1-skin-pct').textContent=skinPct+'% in skin';
+  const cv=document.getElementById('c1-canvas'), ctx=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H/2, R=W*0.42;
+  ctx.clearRect(0,0,W,H);
+  // Draw ball
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,71,255,.05)'; ctx.fill();
+  ctx.strokeStyle='var(--mist)'; ctx.lineWidth=1; ctx.stroke();
+  // Draw skin ring
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.arc(cx,cy,R*(1-eps),0,Math.PI*2,true);
+  ctx.fillStyle='rgba(255,107,53,.12)'; ctx.fill();
+  // Generate 100 points
+  for(let i=0;i<100;i++){
+    // Sample uniform in d-ball by sampling gaussian and normalizing, then scaling
+    let coords=[];
+    for(let j=0;j<d;j++) coords.push(gaussRand());
+    let norm=Math.sqrt(coords.reduce((s,v)=>s+v*v,0));
+    let u=Math.pow(Math.random(),1/d);
+    let r=u; // radius in [0,1]
+    // Project to 2D (first 2 coords)
+    let px=(coords[0]/norm)*r, py=(coords[1]/norm)*r;
+    let dist=Math.sqrt(px*px+py*py);
+    let inSkin=r>=1-eps;
+    ctx.beginPath();
+    ctx.arc(cx+px*R, cy+py*R, 3, 0, Math.PI*2);
+    ctx.fillStyle=inSkin?'rgba(255,107,53,.8)':'rgba(0,71,255,.6)';
+    ctx.fill();
+  }
+  // Labels
+  ctx.fillStyle=c1_dimIdx>=2?'var(--red)':'var(--gray)';
+  ctx.font='600 14px "Space Grotesk"';
+  ctx.textAlign='center';
+  ctx.fillText('d = '+d, cx, cy+R+30);
+}
+function gaussRand(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+window.init_c1=function(){c1_answered=false;c1_dimIdx=0;
+  document.getElementById('c1-viz').style.display='none';
+  document.getElementById('c1-proof').style.display='none';
+  document.querySelectorAll('#c1-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+};
+
+/* ═══════════════════════════════════════
+   CH5: MONTY HALL
+═══════════════════════════════════════ */
+buildScreen('c5',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 05</div>
+    <div class="ch-icon">🚪</div>
+    <h2>The Monty Hall Trap</h2>
+  </div>
+  <div class="question-box">
+    3 doors. A prize is behind one, chosen at random. You pick a door. The host (who knows where the prize is) opens a different door — <strong>always a losing one</strong>.<br><br>
+    Should you switch to the remaining door?<br>
+    <strong>What is the probability of winning if you switch?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">The host's action is NOT random. The host <strong>always</strong> opens a losing door. Does this give you new information?</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">List all 3 cases: the prize is behind door 1, door 2, or door 3. In how many cases does switching win?</div>
+  </div>
+  <div class="choices" id="c5-theory">
+    <button class="choice-btn" onclick="c5_theory(this,0)">A) P = 1/3</button>
+    <button class="choice-btn" onclick="c5_theory(this,1)">B) P = 1/2</button>
+    <button class="choice-btn" onclick="c5_theory(this,2)">C) P = 2/3</button>
+    <button class="choice-btn" onclick="c5_theory(this,3)">D) It depends</button>
+  </div>
+  <div id="c5-game" style="display:none;">
+    <h3>Now test it — 5 rounds!</h3>
+    <p class="mono" id="c5-stats" style="margin:.5rem 0;">Round <span id="c5-round">1</span>/5 · Switched wins: <span id="c5-sw">0</span>/<span id="c5-swt">0</span> · Stayed wins: <span id="c5-stw">0</span>/<span id="c5-stt">0</span></p>
+    <div id="c5-doors" style="display:flex;gap:1rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap;"></div>
+    <div id="c5-action" style="display:none;text-align:center;">
+      <p style="margin-bottom:1rem;font-weight:600;" id="c5-reveal-text"></p>
+      <button class="btn btn-outline btn-sm" onclick="c5_decide('stay')">🔒 Stay</button>
+      <button class="btn btn-primary btn-sm" onclick="c5_decide('switch')" style="margin-left:.5rem;">🔄 Switch</button>
     </div>
-  </section>
+  </div>
+  <div id="c5-proof" style="display:none;">
+    <div class="proof-block">You pick door 1. The prize is equally likely
+behind door 1, 2, or 3.
 
-  <!-- ==================== GRAND FINALE ==================== -->
-  <section id="finale" class="section">
-    <div class="finale-container" id="finale-container">
-      <!-- Phase 1: The Reveal -->
-      <div class="finale-phase" id="finale-reveal">
-        <h2 class="finale-title">Wait...</h2>
-        <p class="finale-text">Every puzzle you just solved?</p>
-        <p class="finale-text finale-text-bold">It wasn't just a game.</p>
-        <div class="finale-connections" id="finale-connections">
-          <!-- JS populates challenge→medical AI connections -->
-        </div>
-        <button class="btn btn-primary" onclick="Finale.showPhase('ecg')">See what this math really does →</button>
-      </div>
+Case A: Prize behind door 1 → you win by staying  (1/3)
+Case B: Prize behind door 2 → host opens 3, switch wins (1/3)
+Case C: Prize behind door 3 → host opens 2, switch wins (1/3)
 
-      <!-- Phase 2: ECG Pipeline -->
-      <div class="finale-phase" id="finale-ecg" style="display:none;">
-        <h2 class="finale-section-title">Your Heartbeat is a Math Signal</h2>
-        <div class="ecg-demo">
-          <canvas id="ecg-canvas" width="800" height="200"></canvas>
-          <div class="ecg-label" id="ecg-label">Raw ECG Signal</div>
-        </div>
-        <div class="transform-grid" id="transform-grid">
-          <div class="transform-card" id="transform-gaf">
-            <canvas width="200" height="200"></canvas>
-            <h4>GAF</h4>
-            <p>Gramian Angular Field</p>
-          </div>
-          <div class="transform-card" id="transform-rp">
-            <canvas width="200" height="200"></canvas>
-            <h4>Recurrence Plot</h4>
-            <p>Distance Matrix</p>
-          </div>
-          <div class="transform-card" id="transform-mtf">
-            <canvas width="200" height="200"></canvas>
-            <h4>MTF</h4>
-            <p>Markov Transition Field</p>
-          </div>
-          <div class="transform-card" id="transform-cwt">
-            <canvas width="200" height="200"></canvas>
-            <h4>CWT</h4>
-            <p>Wavelet Transform</p>
-          </div>
-        </div>
-        <div class="pipeline-arrow" id="pipeline-arrow">
-          <div class="pipeline-step">4-Channel Image</div>
-          <div class="pipeline-connector">→</div>
-          <div class="pipeline-step">ResNet Classifier</div>
-          <div class="pipeline-connector">→</div>
-          <div class="pipeline-step result-step" id="classification-result">Normal Sinus Rhythm ✓</div>
-        </div>
-        <button class="btn btn-primary" onclick="Finale.showPhase('tmeca')">Meet T-MECA →</button>
-      </div>
+Switching wins in 2 out of 3 cases:
+    P(switch wins) = 2/3
 
-      <!-- Phase 3: T-MECA -->
-      <div class="finale-phase" id="finale-tmeca" style="display:none;">
-        <div class="tmeca-showcase">
-          <div class="tmeca-badge">Real Research Project</div>
-          <h2 class="tmeca-title">T-MECA</h2>
-          <p class="tmeca-full">Trustworthy Multi-Encoding Classification of Arrhythmias</p>
-          <div class="tmeca-stat">
-            <span class="tmeca-number" id="tmeca-accuracy">0</span>
-            <span class="tmeca-percent">%</span>
-            <span class="tmeca-label">Accuracy on cardiac arrhythmia detection</span>
-          </div>
-          <div class="tmeca-info">
-            <p>The signal transforms you just saw? That's <strong>GAF, RP, MTF, CWT</strong> — pure math.</p>
-            <p>The classifier? A <strong>ResNet</strong> trained with the exact concepts you played with.</p>
-            <p>Built by <strong>Ahlam Tarik</strong> at EIDIA, Euromed University of Fes.</p>
-          </div>
-          <a href="https://github.com/theahlamtarik/T-MECA" target="_blank" class="btn btn-github">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            View on GitHub
-          </a>
-        </div>
-        <button class="btn btn-primary" onclick="Finale.showPhase('impact')">See the bigger picture →</button>
-      </div>
-
-      <!-- Phase 4: Impact Wall -->
-      <div class="finale-phase" id="finale-impact" style="display:none;">
-        <h2 class="finale-section-title">Math Saves Lives</h2>
-        <p class="impact-intro">Every concept you played with today powers AI that saves real human lives:</p>
-        <div class="impact-grid" id="impact-grid">
-          <!-- JS populates -->
-        </div>
-        <div class="finale-closing">
-          <p class="closing-quote">"You just played with some wild math puzzles…<br>and without knowing it, you learned how AI reads a human heartbeat."</p>
-          <p class="closing-bold">Math isn't abstract. Math saves lives.</p>
-        </div>
-        <button class="btn btn-primary" onclick="App.showSection('leaderboard')">
-          🏆 See Final Leaderboard
-        </button>
-      </div>
+The host's action is NOT random — it always
+reveals a losing door. This transfers probability
+mass to the remaining door. <span class="qed">∎</span></div>
+    <div style="background:var(--paper);border-radius:12px;padding:1.5rem;margin:1rem 0;">
+      <p style="font-family:var(--mono);font-size:.85rem;margin-bottom:.5rem;">🤖 GPT-3.5 says:</p>
+      <p style="font-style:italic;color:var(--gray);">"It doesn't matter — both have a 50/50 chance."</p>
+      <p style="color:var(--red);font-weight:700;margin-top:.5rem;">WRONG.</p>
+      <p style="margin-top:.5rem;">In 1990, nearly 1000 PhD mathematicians wrote to a newspaper saying the answer was 1/2. They were all wrong. And in 2023, GPT-3.5 made the same mistake. You just outperformed them all.</p>
     </div>
-  </section>
-
-  <!-- ==================== LEADERBOARD ==================== -->
-  <section id="leaderboard" class="section">
-    <div class="leaderboard-container">
-      <h2 class="leaderboard-title">🏆 Leaderboard</h2>
-      <div class="leaderboard-list" id="leaderboard-list">
-        <!-- JS populates -->
-      </div>
-      <div class="leaderboard-actions">
-        <button class="btn btn-primary" onclick="App.showSection('hub')">
-          ← Back to Challenges
-        </button>
-        <button class="btn btn-ghost" onclick="App.resetGame()">
-          New Player
-        </button>
-      </div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>Conditional probability is the foundation of Bayesian reasoning — how AI updates its beliefs when it gets new evidence. Every spam filter, medical diagnosis AI, and recommendation system uses Bayes' theorem.</p>
     </div>
-  </section>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
 
-  <!-- Scripts -->
-  <script src="js/engine.js"></script>
-  <script src="js/challenges.js"></script>
-  <script src="js/challenges2.js"></script>
-  <script src="js/finale.js"></script>
+let c5_state={round:1,prize:0,picked:-1,opened:-1,theoryPts:0,switchW:0,switchT:0,stayW:0,stayT:0,gamePts:0,theoryDone:false};
+function c5_theory(btn,idx){
+  if(c5_state.theoryDone) return;
+  c5_state.theoryDone=true;
+  document.querySelectorAll('#c5-theory .choice-btn').forEach((b,i)=>{
+    if(i===2) b.classList.add('correct');
+    else if(i===idx&&idx!==2) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  c5_state.theoryPts=idx===2?50:0;
+  document.getElementById('c5-game').style.display='block';
+  c5_newRound();
+}
+function c5_newRound(){
+  c5_state.prize=Math.floor(Math.random()*3);
+  c5_state.picked=-1; c5_state.opened=-1;
+  const doors=document.getElementById('c5-doors');
+  doors.innerHTML='';
+  for(let i=0;i<3;i++){
+    doors.innerHTML+=`<div style="width:100px;height:140px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:2rem;color:var(--white);transition:all .3s;" id="c5-d${i}" onclick="c5_pick(${i})">🚪</div>`;
+  }
+  document.getElementById('c5-action').style.display='none';
+  document.getElementById('c5-round').textContent=c5_state.round;
+}
+function c5_pick(i){
+  if(c5_state.picked>=0) return;
+  c5_state.picked=i;
+  document.getElementById('c5-d'+i).style.border='3px solid var(--gold)';
+  // Host opens a losing door that isn't picked
+  let options=[];
+  for(let j=0;j<3;j++){if(j!==i&&j!==c5_state.prize) options.push(j);}
+  c5_state.opened=options[Math.floor(Math.random()*options.length)];
+  setTimeout(()=>{
+    document.getElementById('c5-d'+c5_state.opened).innerHTML='❌';
+    document.getElementById('c5-d'+c5_state.opened).style.background='var(--paper)';
+    document.getElementById('c5-d'+c5_state.opened).style.color='var(--gray)';
+    document.getElementById('c5-d'+c5_state.opened).style.cursor='default';
+    document.getElementById('c5-reveal-text').textContent=`Door ${c5_state.opened+1} is empty! Stay with door ${c5_state.picked+1} or switch?`;
+    document.getElementById('c5-action').style.display='block';
+  },600);
+}
+function c5_decide(action){
+  let finalDoor=c5_state.picked;
+  if(action==='switch'){
+    for(let j=0;j<3;j++){if(j!==c5_state.picked&&j!==c5_state.opened){finalDoor=j;break;}}
+    c5_state.switchT++;
+  } else {
+    c5_state.stayT++;
+  }
+  let won=finalDoor===c5_state.prize;
+  if(action==='switch'&&won) c5_state.switchW++;
+  if(action==='stay'&&won) c5_state.stayW++;
+  if(won) c5_state.gamePts+=10;
+  // Reveal all
+  for(let j=0;j<3;j++){
+    const el=document.getElementById('c5-d'+j);
+    el.innerHTML=j===c5_state.prize?'🏆':'❌';
+    el.style.background=j===c5_state.prize?'rgba(0,184,138,.15)':'var(--paper)';
+    el.style.cursor='default';
+  }
+  document.getElementById('c5-action').style.display='none';
+  document.getElementById('c5-sw').textContent=c5_state.switchW;
+  document.getElementById('c5-swt').textContent=c5_state.switchT;
+  document.getElementById('c5-stw').textContent=c5_state.stayW;
+  document.getElementById('c5-stt').textContent=c5_state.stayT;
+  toast(won?'You won! 🏆':'You lost!',won?'good':'bad');
+  c5_state.round++;
+  if(c5_state.round<=5){
+    setTimeout(c5_newRound,1500);
+  } else {
+    setTimeout(()=>{
+      let total=c5_state.theoryPts+c5_state.gamePts;
+      if(c5_state.switchT>=4) total=Math.round(total*1.5);
+      addPts('c5',total);
+      document.getElementById('c5-proof').style.display='block';
+    },1500);
+  }
+}
+window.init_c5=function(){
+  c5_state={round:1,prize:0,picked:-1,opened:-1,theoryPts:0,switchW:0,switchT:0,stayW:0,stayT:0,gamePts:0,theoryDone:false};
+  document.getElementById('c5-game').style.display='none';
+  document.getElementById('c5-proof').style.display='none';
+  document.querySelectorAll('#c5-theory .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+};
+
+/* ═══════════════════════════════════════
+   CH2: THE INVISIBLE ATTACK
+═══════════════════════════════════════ */
+buildScreen('c2',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 02</div>
+    <div class="ch-icon">👁</div>
+    <h2>The Invisible Attack</h2>
+  </div>
+  <div class="question-box">
+    This AI looks at an image and says <strong>"3"</strong> with 95% confidence. I'm going to change each pixel by a tiny amount — so small you can't see it.<br><br>
+    <strong>Can I make the AI see a completely different number?</strong><br>
+    Find the smallest change ε that fools the AI.
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">Think of each pixel as a variable. The derivative ∂E/∂xᵢ tells you: if I change pixel i, how much does the AI's error change?</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Change each pixel in the direction that INCREASES the error. Even tiny changes, all pushing together, can break the AI.</div>
+  </div>
+  <div class="canvas-wrap"><canvas id="c2-canvas" width="280" height="280"></canvas></div>
+  <div class="slider-row">
+    <label>ε =</label>
+    <input type="range" id="c2-slider" min="0" max="100" value="0" oninput="c2_update()">
+    <div class="val" id="c2-val">0.00</div>
+  </div>
+  <p class="mono" id="c2-conf" style="margin:.5rem 0;">AI says: <strong>"3"</strong> — confidence <strong>95%</strong></p>
+  <button class="btn btn-primary btn-sm" id="c2-submit" onclick="c2_submit()">Submit ε</button>
+  <div id="c2-proof" style="display:none;">
+    <div class="proof-block">Let f(x) be the AI's classification of image x.
+Let E(x) be the AI's error — how "wrong" the AI is.
+
+For each pixel xᵢ, compute the derivative:
+    ∂E/∂xᵢ = how much does the error change
+             if I change pixel i?
+
+If ∂E/∂xᵢ > 0: increasing xᵢ increases the error.
+If ∂E/∂xᵢ < 0: decreasing xᵢ increases the error.
+
+Now change EVERY pixel by ε in that direction:
+    x'ᵢ = xᵢ + ε · sign(∂E/∂xᵢ)
+
+Each pixel changes by at most ε (invisible if small).
+But all pixels push the error in the same direction.
+
+Result: at ε = 0.03, the image looks identical
+to a human, but f(x') = "7" instead of "3". <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 2015, Ian Goodfellow published this attack and shocked the field. In 2017, researchers put invisible stickers on a stop sign — a self-driving car read it as '60 km/h.' Today, every medical AI must be stress-tested against such attacks.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+let c2_fooled=false, c2_submitted=false;
+const c2_threshold=0.03, c2_digit=[[0,0,1,1,1,0,0],[0,1,0,0,0,1,0],[0,0,0,0,1,0,0],[0,0,0,1,0,0,0],[0,0,1,0,0,0,0],[0,1,0,0,0,0,0],[0,1,1,1,1,1,0]];
+function c2_drawDigit(ctx,eps){
+  const W=280,S=W/7;
+  ctx.clearRect(0,0,W,W);
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    let v=c2_digit[r][c];
+    let noise=(Math.random()-.5)*2*eps;
+    let val=Math.max(0,Math.min(1,v+noise));
+    let g=Math.round((1-val)*255);
+    ctx.fillStyle=`rgb(${g},${g},${g})`;
+    ctx.fillRect(c*S,r*S,S-2,S-2);
+  }
+}
+function c2_update(){
+  const eps=document.getElementById('c2-slider').value/1000;
+  document.getElementById('c2-val').textContent=eps.toFixed(3);
+  const cv=document.getElementById('c2-canvas'),ctx=cv.getContext('2d');
+  c2_drawDigit(ctx,eps);
+  // Simulate confidence
+  let conf=Math.max(0,95-eps*3000);
+  c2_fooled=eps>=c2_threshold;
+  if(c2_fooled){
+    document.getElementById('c2-conf').innerHTML='AI says: <strong style="color:var(--red);">"7"</strong> — confidence <strong>'+Math.round(89-((eps-c2_threshold)*500))+'%</strong> <span style="color:var(--teal);font-weight:700;">AI FOOLED ✓</span>';
+  } else {
+    document.getElementById('c2-conf').innerHTML='AI says: <strong>"3"</strong> — confidence <strong>'+Math.round(conf)+'%</strong>';
+  }
+}
+function c2_submit(){
+  if(c2_submitted) return;
+  c2_submitted=true;
+  const eps=document.getElementById('c2-slider').value/1000;
+  let pts=c2_fooled?Math.round((1-eps)*100):10;
+  if(c2_fooled&&Math.abs(eps-c2_threshold)<0.02) pts+=10;
+  addPts('c2',pts);
+  document.getElementById('c2-submit').style.display='none';
+  document.getElementById('c2-proof').style.display='block';
+}
+window.init_c2=function(){c2_submitted=false;c2_fooled=false;
+  document.getElementById('c2-slider').value=0;
+  document.getElementById('c2-submit').style.display='inline-flex';
+  document.getElementById('c2-proof').style.display='none';
+  c2_update();
+};
+
+/* ═══════════════════════════════════════
+   CH3: BEAT THE NEURAL NET (OVERFITTING)
+═══════════════════════════════════════ */
+buildScreen('c3',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 03</div>
+    <div class="ch-icon">🎯</div>
+    <h2>Beat the Neural Net</h2>
+  </div>
+  <div class="question-box">
+    Here are <strong>blue dots</strong> and <strong>red dots</strong>. The AI drew a smooth curve to separate them.<br><br>
+    Does a curve that fits ALL the training dots perfectly give you the best result on <strong>new unseen data</strong>?<br>
+    <strong>Pick your answer, then see the test data.</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">Think about fitting a polynomial: a degree-20 polynomial passes through every point, but between the points, it oscillates wildly.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">A model with more parameters can always fit better. But fitting noise ≠ understanding the pattern.</div>
+  </div>
+  <div class="choices" id="c3-choices">
+    <button class="choice-btn" onclick="c3_answer(0)">A) Yes — more accuracy on training data is always better</button>
+    <button class="choice-btn" onclick="c3_answer(1)">B) No — the simpler curve will win on new data</button>
+  </div>
+  <div class="canvas-wrap"><canvas id="c3-canvas" width="500" height="400"></canvas></div>
+  <button class="btn btn-sm btn-primary" id="c3-reveal" style="display:none;" onclick="c3_reveal()">Reveal test data →</button>
+  <div id="c3-proof" style="display:none;">
+    <div class="proof-block">Let f₁(x) be the complex boundary (fits every point).
+Let f₂(x) be the smooth AI boundary (misses a few).
+
+On training data (12 points):
+    Accuracy(f₁) = 100%  (passes through every point)
+    Accuracy(f₂) = 85%   (misses a few)
+
+On test data (10 NEW points):
+    Accuracy(f₁) = 60%   (fails on new data)
+    Accuracy(f₂) = 90%   (works on new data)
+
+A polynomial of degree n−1 can always fit n points.
+But between those points, it oscillates wildly.
+
+The simpler function generalizes. The complex one
+memorized. More parameters ≠ better predictions. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 2017, a medical AI scored 99% on X-rays from Hospital A. On Hospital B: 60%. It had memorized the scanner's watermark, not the disease. Today, every AI is tested on data it has never seen — like your math exam has new exercises, not the homework.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+let c3_done=false;
+const c3_train=[{x:50,y:80,c:0},{x:100,y:120,c:0},{x:80,y:200,c:0},{x:150,y:160,c:0},{x:130,y:280,c:0},{x:60,y:300,c:0},{x:300,y:80,c:1},{x:350,y:130,c:1},{x:400,y:200,c:1},{x:320,y:260,c:1},{x:380,y:300,c:1},{x:420,y:100,c:1}];
+const c3_test=[{x:70,y:150,c:0},{x:120,y:240,c:0},{x:90,y:340,c:0},{x:160,y:100,c:0},{x:180,y:220,c:0},{x:280,y:120,c:1},{x:370,y:180,c:1},{x:340,y:340,c:1},{x:430,y:260,c:1},{x:250,y:200,c:1}];
+function c3_draw(showTest){
+  const cv=document.getElementById('c3-canvas'),ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,500,400);
+  ctx.fillStyle='#fafaf7';ctx.fillRect(0,0,500,400);
+  // AI boundary (simple vertical line at x=220)
+  ctx.setLineDash([8,6]);ctx.strokeStyle='rgba(0,184,138,.5)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(220,0);ctx.lineTo(220,400);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(0,184,138,.08)';ctx.fillRect(220,0,280,400);
+  ctx.font='11px "JetBrains Mono"';ctx.fillStyle='var(--teal)';ctx.fillText('AI boundary',225,20);
+  // Train dots
+  c3_train.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=p.c?'rgba(255,45,85,.7)':'rgba(0,71,255,.7)';ctx.fill();});
+  if(showTest){
+    c3_test.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=p.c?'rgba(255,45,85,.4)':'rgba(0,71,255,.4)';ctx.fill();ctx.setLineDash([3,3]);ctx.strokeStyle=p.c?'#FF2D55':'#0047FF';ctx.stroke();ctx.setLineDash([]);});
+    ctx.fillStyle='var(--gray)';ctx.font='11px "JetBrains Mono"';ctx.fillText('⬤ = train   ◌ = test',10,390);
+  }
+}
+function c3_answer(idx){
+  if(c3_done)return;c3_done=true;
+  document.querySelectorAll('#c3-choices .choice-btn').forEach((b,i)=>{
+    if(i===1) b.classList.add('correct');
+    else if(i===idx&&idx!==1) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  c3_draw(false);
+  document.getElementById('c3-reveal').style.display='inline-flex';
+}
+function c3_reveal(){
+  c3_draw(true);
+  document.getElementById('c3-reveal').style.display='none';
+  const pts=c3_done&&document.querySelector('#c3-choices .choice-btn.correct')?90:40;
+  addPts('c3',pts);
+  document.getElementById('c3-proof').style.display='block';
+}
+window.init_c3=function(){c3_done=false;
+  document.getElementById('c3-reveal').style.display='none';
+  document.getElementById('c3-proof').style.display='none';
+  document.querySelectorAll('#c3-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+  c3_draw(false);
+};
+
+/* ═══════════════════════════════════════
+   CH4: WORD MATH RACE
+═══════════════════════════════════════ */
+buildScreen('c4',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 04</div>
+    <div class="ch-icon">👑</div>
+    <h2>Word Math Race</h2>
+  </div>
+  <div class="question-box">
+    AI turns each word into a list of 300 numbers — a point in space. Words with similar meanings end up <strong>close together</strong>. And then something magical:<br><br>
+    <strong>King − Man + Woman = Queen</strong><br><br>
+    If this is true, solve the equations below. Speed matters!
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">Think of it as an analogy: A is to B as ? is to C.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Rabat is the capital of Morocco. France's capital is...?</div>
+  </div>
+  <div id="c4-game">
+    <p class="mono" style="margin-bottom:.5rem;">Round <strong id="c4-round">1</strong>/3 · <span id="c4-timer" style="color:var(--red);">15s</span></p>
+    <h3 id="c4-q" style="font-size:1.3rem;margin:1rem 0;"></h3>
+    <div class="choices" id="c4-opts"></div>
+  </div>
+  <div id="c4-proof" style="display:none;">
+    <div class="proof-block">Each word w is represented as a vector V(w) ∈ ℝ³⁰⁰.
+Words with similar meanings are close in this space.
+
+V(King) − V(Man) removes the "male" direction.
+Adding V(Woman) adds the "female" direction.
+The result lands near V(Queen):
+
+    V(King) − V(Man) + V(Woman) ≈ V(Queen)
+
+Similarly:
+    V(Rabat) − V(Morocco) + V(France) ≈ V(Paris)
+
+The "capital of" relationship is a direction
+in 300-dimensional space. Nobody programmed this.
+The AI discovered it by reading billions of words. <span class="qed">∎</span></div>
+    <div style="background:rgba(255,45,85,.06);border:1px solid rgba(255,45,85,.2);border-radius:12px;padding:1.5rem;margin:1rem 0;" id="c4-bias" style="display:none;">
+      <p style="font-weight:700;color:var(--red);margin-bottom:.5rem;">⚠ The Bias Round</p>
+      <p>Doctor − Man + Woman = Nurse. The AI learned this from internet text. The internet reflects human biases. So AI inherits — and sometimes amplifies — those biases.</p>
+    </div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 2013, Tomáš Mikolov at Google published Word2Vec and proved language has geometry. Nobody taught the AI what "capital" means — it learned from patterns. Today, ChatGPT does the same in 12,288 dimensions.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+const c4_rounds=[
+  {q:'Rabat − Morocco + France = ?',opts:['Paris','Madrid','Algiers','London'],ans:0},
+  {q:'Doctor − Man + Woman = ?',opts:['Nurse','Engineer','Teacher','Lawyer'],ans:0,bias:true},
+  {q:'Japan − Tokyo + France = ?',opts:['Paris','Berlin','Rome','Madrid'],ans:0}
+];
+let c4_state={round:0,pts:0,timer:null,timeLeft:15};
+function c4_startRound(){
+  const r=c4_rounds[c4_state.round];
+  document.getElementById('c4-round').textContent=c4_state.round+1;
+  document.getElementById('c4-q').textContent=r.q;
+  const opts=document.getElementById('c4-opts');
+  opts.innerHTML='';
+  r.opts.forEach((o,i)=>{opts.innerHTML+=`<button class="choice-btn" onclick="c4_pick(${i})">${o}</button>`;});
+  c4_state.timeLeft=15;
+  document.getElementById('c4-timer').textContent='15s';
+  clearInterval(c4_state.timer);
+  c4_state.timer=setInterval(()=>{
+    c4_state.timeLeft--;
+    document.getElementById('c4-timer').textContent=c4_state.timeLeft+'s';
+    if(c4_state.timeLeft<=0){clearInterval(c4_state.timer);c4_pick(-1);}
+  },1000);
+}
+function c4_pick(idx){
+  clearInterval(c4_state.timer);
+  const r=c4_rounds[c4_state.round];
+  document.querySelectorAll('#c4-opts .choice-btn').forEach((b,i)=>{
+    if(i===r.ans) b.classList.add('correct');
+    else if(i===idx) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  if(idx===r.ans){
+    const speed=c4_state.timeLeft;
+    const pts=speed>10?100:speed>5?70:40;
+    c4_state.pts+=pts;
+    toast(`Correct! +${pts}`,'good');
+  } else {
+    c4_state.pts=Math.max(0,c4_state.pts-10);
+    toast(idx===-1?'Time\'s up!':'Wrong!','bad');
+  }
+  c4_state.round++;
+  if(c4_state.round<c4_rounds.length){
+    setTimeout(c4_startRound,1500);
+  } else {
+    setTimeout(()=>{
+      addPts('c4',c4_state.pts);
+      document.getElementById('c4-game').style.display='none';
+      document.getElementById('c4-proof').style.display='block';
+    },1500);
+  }
+}
+window.init_c4=function(){c4_state={round:0,pts:0,timer:null,timeLeft:15};
+  document.getElementById('c4-game').style.display='block';
+  document.getElementById('c4-proof').style.display='none';
+  c4_startRound();
+};
+
+/* ═══════════════════════════════════════
+   CH6: THE LEARNING RATE RACE
+═══════════════════════════════════════ */
+buildScreen('c6',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 06</div>
+    <div class="ch-icon">⚡</div>
+    <h2>The Learning Rate Race</h2>
+  </div>
+  <div class="question-box">
+    You have a function f(x). You want to find its <strong>minimum</strong>. You can only see the slope f'(x) at your current position.<br><br>
+    You move by this rule: <strong>xₖ₊₁ = xₖ − α · f'(xₖ)</strong><br>
+    Choose α (step size) and reach the bottom in the fewest steps!<br>
+    <strong>Warning: if α is too large, do you still converge?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">f'(x) is the slope. If f'(x) > 0, function goes up → move left. If f'(x) < 0 → move right.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">If α is too large, you jump past the minimum and land further away — the ball bounces forever.</div>
+  </div>
+  <div class="canvas-wrap"><canvas id="c6-canvas" width="500" height="300"></canvas></div>
+  <div class="slider-row">
+    <label>α =</label>
+    <input type="range" id="c6-alpha" min="1" max="200" value="50" oninput="c6_setAlpha()">
+    <div class="val" id="c6-alpha-val">0.50</div>
+  </div>
+  <p class="mono" id="c6-info">Steps: 0 · x = 4.00 · f'(x) = 8.00</p>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+    <button class="btn btn-sm btn-primary" onclick="c6_step()">Step →</button>
+    <button class="btn btn-sm btn-outline" onclick="c6_reset()">Reset</button>
+    <button class="btn btn-sm btn-gold" id="c6-done" style="display:none;" onclick="c6_finish()">Done ✓</button>
+  </div>
+  <div id="c6-proof" style="display:none;">
+    <div class="proof-block">The rule:
+    xₖ₊₁ = xₖ − α · f'(xₖ)
+
+This moves x opposite to the slope.
+    If f'(x) > 0 (going up), we move left.
+    If f'(x) < 0 (going down), we move right.
+
+If α is small:
+    Each step is tiny → slow but converges.
+
+If α is too large:
+    Example: f(x) = x². f'(x) = 2x.
+    At x = 1, with α = 1.5:
+        x₁ = 1 − 1.5·2(1) = −2
+        x₂ = −2 − 1.5·2(−2) = 4
+    Values grow: 1 → −2 → 4 → ... Divergence.
+
+At a flat point:
+    f'(x) = 0, so xₖ₊₁ = xₖ.
+    The ball is stuck. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 1986, Geoffrey Hinton revived neural networks with backpropagation. In 2014, Kingma invented Adam — an algorithm that adapts α automatically. Even Adam doesn't fully solve this. It is still an open research question.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+let c6={x:4,steps:0,alpha:.5,done:false,path:[]};
+function c6_f(x){return x*x;}
+function c6_fp(x){return 2*x;}
+function c6_setAlpha(){c6.alpha=document.getElementById('c6-alpha').value/100;document.getElementById('c6-alpha-val').textContent=c6.alpha.toFixed(2);}
+function c6_draw(){
+  const cv=document.getElementById('c6-canvas'),ctx=cv.getContext('2d'),W=500,H=300;
+  ctx.clearRect(0,0,W,H);
+  // Draw f(x)=x^2, x in [-5,5], y in [0,25]
+  ctx.beginPath();ctx.strokeStyle='var(--mist)';ctx.lineWidth=2;
+  for(let px=0;px<W;px++){let x=(px/W)*10-5;let y=c6_f(x);let py=H-y*(H/25)-10;ctx.lineTo(px,py);}
+  ctx.stroke();
+  // Ball
+  let bx=(c6.x+5)/10*W, by=H-c6_f(c6.x)*(H/25)-10;
+  if(by<-50||by>H+50){ctx.fillStyle='var(--red)';ctx.font='700 20px "Space Grotesk"';ctx.textAlign='center';ctx.fillText('💥 DIVERGED!',W/2,H/2);return;}
+  // Path
+  if(c6.path.length>1){ctx.beginPath();ctx.strokeStyle='rgba(0,71,255,.3)';ctx.lineWidth=1;
+    c6.path.forEach((p,i)=>{let px2=(p+5)/10*W,py2=H-c6_f(p)*(H/25)-10;i===0?ctx.moveTo(px2,py2):ctx.lineTo(px2,py2);});ctx.stroke();}
+  ctx.beginPath();ctx.arc(bx,by,8,0,Math.PI*2);ctx.fillStyle='var(--blue)';ctx.fill();
+  ctx.fillStyle='var(--ink)';ctx.font='600 12px "Space Grotesk"';ctx.textAlign='center';ctx.fillText('f(x) = x²',W/2,20);
+}
+function c6_step(){
+  if(c6.done)return;
+  c6.path.push(c6.x);
+  c6.x=c6.x-c6.alpha*c6_fp(c6.x);
+  c6.steps++;
+  c6_draw();
+  const converged=Math.abs(c6.x)<0.1;
+  const diverged=Math.abs(c6.x)>100;
+  document.getElementById('c6-info').textContent=diverged?'💥 DIVERGED! Reset and try a smaller α.':`Steps: ${c6.steps} · x = ${c6.x.toFixed(2)} · f'(x) = ${c6_fp(c6.x).toFixed(2)}`;
+  if(converged){document.getElementById('c6-done').style.display='inline-flex';toast('Converged! 🎯','good');}
+}
+function c6_reset(){c6={x:4,steps:0,alpha:c6.alpha,done:false,path:[]};c6_draw();
+  document.getElementById('c6-info').textContent='Steps: 0 · x = 4.00 · f\'(x) = 8.00';
+  document.getElementById('c6-done').style.display='none';}
+function c6_finish(){
+  if(c6.done)return;c6.done=true;
+  const pts=Math.max(10,100-c6.steps*2);
+  addPts('c6',pts);
+  document.getElementById('c6-proof').style.display='block';
+}
+window.init_c6=function(){c6_reset();document.getElementById('c6-proof').style.display='none';c6_draw();};
+
+/* ═══════════════════════════════════════
+   CH7: THE ATTENTION SPOTLIGHT
+═══════════════════════════════════════ */
+buildScreen('c7',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 07</div>
+    <div class="ch-icon">🔦</div>
+    <h2>The Attention Spotlight</h2>
+  </div>
+  <div class="question-box">
+    ChatGPT reads: <strong>"The cat sat on the mat because it was tired."</strong><br><br>
+    The word "it" could refer to "cat" or "mat." How does the AI decide?<br>
+    <strong>Which word does the AI focus on most? Place your bet!</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">"it was tired" — who can be tired? A cat can be tired. A mat cannot.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">The AI computes a relevance number for every pair of words. The highest number = the strongest connection.</div>
+  </div>
+  <div id="c7-game">
+    <p class="mono" style="margin-bottom:.5rem;">Round <strong id="c7-round">1</strong>/3 · Your bet: <span id="c7-bet-display">-</span></p>
+    <p style="font-size:1.1rem;margin:1rem 0;" id="c7-sentence"></p>
+    <p class="mono" id="c7-q-text" style="margin-bottom:.5rem;"></p>
+    <div class="slider-row" id="c7-bet-row">
+      <label>Bet:</label>
+      <input type="range" id="c7-bet" min="10" max="50" value="20">
+      <div class="val" id="c7-bet-val">20 pts</div>
+    </div>
+    <div class="choices" id="c7-opts"></div>
+  </div>
+  <div id="c7-proof" style="display:none;">
+    <div class="proof-block">For each pair of words (i, j), the AI computes
+a "relevance score":
+
+    score(i,j) = how similar is word i to word j?
+                 (a dot product, divided by √d)
+
+These scores are normalized to add up to 1:
+
+    weight(i,j) = e^score(i,j) / Σₖ e^score(i,k)
+
+For "it" → "cat":  score = 4.2  →  weight = 0.62
+For "it" → "mat":  score = 1.8  →  weight = 0.18
+
+The weights tell the AI: when reading "it",
+pay 62% attention to "cat" and 18% to "mat." <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In 2017, eight Google researchers published "Attention Is All You Need." That one equation — the relevance score — is the foundation of every AI you use today: ChatGPT, Claude, Gemini. They run this billions of times per second.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
+  </div>
+</div>
+`);
+
+const c7_rounds=[
+  {sentence:'"The cat sat on the mat because <u>it</u> was tired."',q:'What does "it" focus on?',opts:['cat','mat','sat','because'],ans:0,weights:[62,18,5,15]},
+  {sentence:'"The trophy didn\'t fit in the suitcase because <u>it</u> was too big."',q:'What does "it" refer to?',opts:['trophy','suitcase','fit','big'],ans:0,weights:[58,22,8,12]},
+  {sentence:'"The doctor told the nurse that <u>she</u> would handle the case."',q:'Who does "she" refer to?',opts:['doctor','nurse','she','case'],ans:0,weights:[55,30,5,10]}
+];
+let c7_state={round:0,pts:0};
+function c7_startRound(){
+  const r=c7_rounds[c7_state.round];
+  document.getElementById('c7-round').textContent=c7_state.round+1;
+  document.getElementById('c7-sentence').innerHTML=r.sentence;
+  document.getElementById('c7-q-text').textContent=r.q;
+  document.getElementById('c7-bet').value=20;
+  document.getElementById('c7-bet-val').textContent='20 pts';
+  document.getElementById('c7-bet-display').textContent='-';
+  document.getElementById('c7-bet').oninput=function(){document.getElementById('c7-bet-val').textContent=this.value+' pts';};
+  const opts=document.getElementById('c7-opts');
+  opts.innerHTML='';
+  r.opts.forEach((o,i)=>{opts.innerHTML+=`<button class="choice-btn" onclick="c7_pick(${i})">${o}</button>`;});
+  document.getElementById('c7-bet-row').style.display='flex';
+}
+function c7_pick(idx){
+  const r=c7_rounds[c7_state.round];
+  const bet=parseInt(document.getElementById('c7-bet').value);
+  document.getElementById('c7-bet-display').textContent=bet+' pts on "'+r.opts[idx]+'"';
+  document.querySelectorAll('#c7-opts .choice-btn').forEach((b,i)=>{
+    b.innerHTML=r.opts[i]+' <span style="color:var(--blue);font-size:.8rem;">('+r.weights[i]+'%)</span>';
+    if(i===r.ans) b.classList.add('correct');
+    else if(i===idx&&idx!==r.ans) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  document.getElementById('c7-bet-row').style.display='none';
+  if(idx===r.ans){c7_state.pts+=bet;toast(`Correct! +${bet}`,'good');}
+  else{toast('Wrong!','bad');}
+  c7_state.round++;
+  if(c7_state.round<c7_rounds.length){
+    setTimeout(c7_startRound,1500);
+  } else {
+    setTimeout(()=>{
+      addPts('c7',c7_state.pts);
+      document.getElementById('c7-game').style.display='none';
+      document.getElementById('c7-proof').style.display='block';
+    },1500);
+  }
+}
+window.init_c7=function(){c7_state={round:0,pts:0};
+  document.getElementById('c7-game').style.display='block';
+  document.getElementById('c7-proof').style.display='none';
+  c7_startRound();
+};
+
+/* ═══════════════════════════════════════
+   CH8: T-MECA ECG
+═══════════════════════════════════════ */
+buildScreen('c8',`
+<div class="container">
+  <div class="ch-header">
+    <div class="ch-num">Challenge 08 — The Finale</div>
+    <div class="ch-icon">💓</div>
+    <h2>Are You Smarter Than T-MECA?</h2>
+  </div>
+  <div class="question-box">
+    A heartbeat signal is turned into a colorful image using math (<strong>Gramian Angular Field</strong>). From that image alone — is this heart <strong>healthy</strong> or showing an <strong>arrhythmia</strong>?<br><br>
+    <strong>T-MECA gets it right 98.41% of the time. Can you beat it?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">A normal heartbeat has regular rhythm — equal spacing between peaks. An arrhythmia has irregular spacing.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">In GAF images: smooth, symmetric patterns = healthy. Fragmented, broken patterns = arrhythmia.</div>
+  </div>
+  <div id="c8-game">
+    <p class="mono" style="margin-bottom:.5rem;">Round <strong id="c8-round">1</strong>/5 · Your accuracy: <strong id="c8-acc">0/0</strong></p>
+    <div class="canvas-wrap"><canvas id="c8-canvas" width="300" height="300"></canvas></div>
+    <div class="choices" id="c8-opts" style="margin-top:1rem;">
+      <button class="choice-btn" onclick="c8_pick(0)">💚 Normal (Healthy)</button>
+      <button class="choice-btn" onclick="c8_pick(1)">❤️ Arrhythmia</button>
+    </div>
+  </div>
+  <div id="c8-proof" style="display:none;">
+    <div style="text-align:center;margin:1.5rem 0;">
+      <p class="mono">Your accuracy: <strong id="c8-final-acc" style="font-size:1.5rem;">0%</strong></p>
+      <p class="mono">T-MECA accuracy: <strong style="font-size:1.5rem;color:var(--teal);">98.41%</strong></p>
+    </div>
+    <div class="proof-block">Let s(t) be the ECG signal, normalized to [-1, 1].
+
+Compute the angular representation:
+    φᵢ = arccos(sᵢ)
+
+The Gramian Angular Field is:
+    GAF(i,j) = cos(φᵢ + φⱼ)
+
+Normal sinus rhythm → smooth, symmetric GAF.
+Atrial fibrillation → fragmented, asymmetric GAF.
+
+T-MECA fuses 4 encodings (GAF, RP, MTF, CWT)
+and classifies with 98.41% accuracy on MIT-BIH. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection — T-MECA</div>
+      <p>This is T-MECA — <strong>our project</strong>. A trustworthy AI that reads ECG signals using the same math you just learned: word vectors (encoding), attention (FCA), and avoiding overfitting (train/test split on 109,000 patients). Every challenge in this game leads here. Math saves lives.</p>
+    </div>
+    <button class="btn btn-gold" onclick="nav('finale')" style="margin-top:1rem;">🏆 See Final Score →</button>
+  </div>
+</div>
+`);
+
+const c8_patterns=[
+  {type:0,label:'Normal'},{type:1,label:'Arrhythmia'},{type:0,label:'Normal'},{type:1,label:'Arrhythmia'},{type:1,label:'Arrhythmia'}
+];
+let c8_state={round:0,correct:0};
+function c8_drawGAF(type){
+  const cv=document.getElementById('c8-canvas'),ctx=cv.getContext('2d'),S=300;
+  ctx.clearRect(0,0,S,S);
+  const N=30;
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    let val;
+    if(type===0){// Normal: smooth symmetric
+      val=Math.cos((i+j)*0.3)+Math.sin(i*0.2)*Math.cos(j*0.2);
+    } else {// Arrhythmia: fragmented
+      val=Math.cos((i+j)*0.5+Math.random()*0.8)+Math.sin(i*0.7)*Math.cos(j*0.3)*Math.random();
+    }
+    val=(val+2)/4; // normalize to 0-1
+    const r=Math.round(val*80+100),g=Math.round((1-val)*150+50),b=Math.round(val*200+55);
+    ctx.fillStyle=`rgb(${r},${g},${b})`;
+    ctx.fillRect(i*(S/N),j*(S/N),S/N,S/N);
+  }
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='600 12px "Space Grotesk"';ctx.fillText(type===0?'GAF — Sample':'GAF — Sample',10,20);
+}
+function c8_startRound(){
+  const p=c8_patterns[c8_state.round];
+  document.getElementById('c8-round').textContent=c8_state.round+1;
+  document.getElementById('c8-acc').textContent=c8_state.correct+'/'+(c8_state.round);
+  c8_drawGAF(p.type);
+  document.querySelectorAll('#c8-opts .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+}
+function c8_pick(idx){
+  const p=c8_patterns[c8_state.round];
+  const correct=idx===p.type;
+  if(correct) c8_state.correct++;
+  document.querySelectorAll('#c8-opts .choice-btn').forEach((b,i)=>{
+    if(i===p.type) b.classList.add('correct');
+    else if(i===idx) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  toast(correct?'Correct! ✓':'Wrong — it was '+p.label,correct?'good':'bad');
+  c8_state.round++;
+  if(c8_state.round<c8_patterns.length){
+    setTimeout(c8_startRound,1200);
+  } else {
+    setTimeout(()=>{
+      const acc=Math.round(c8_state.correct/c8_patterns.length*100);
+      const pts=acc>=80?120:acc>=60?80:40;
+      addPts('c8',pts);
+      document.getElementById('c8-final-acc').textContent=acc+'%';
+      document.getElementById('c8-game').style.display='none';
+      document.getElementById('c8-proof').style.display='block';
+    },1200);
+  }
+}
+window.init_c8=function(){c8_state={round:0,correct:0};
+  document.getElementById('c8-game').style.display='block';
+  document.getElementById('c8-proof').style.display='none';
+  c8_startRound();
+};
+
+// Init
+renderGrid();
+</script>
 </body>
 </html>
