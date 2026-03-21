@@ -190,6 +190,7 @@ p,.body-text{font-size:1rem;line-height:1.65;color:var(--gray);}
     <p class="body-text" id="grid-sub">0 / 8 completed · 0 pts</p>
   </div>
   <div class="cards" id="card-grid"></div>
+  <div id="finale-preview" style="max-width:900px;margin:1.5rem auto 0;"></div>
   <div style="text-align:center;margin-top:2rem;">
     <button class="btn btn-gold" id="finale-btn" style="display:none;" onclick="nav('finale')">🏆 Grand Finale →</button>
   </div>
@@ -225,7 +226,7 @@ p,.body-text{font-size:1rem;line-height:1.65;color:var(--gray);}
 ═══════════════════════════════════════ */
 const CARDS=[
   {key:'c1',num:'01',icon:'🍊',title:'The Vanishing Core',concept:'Curse of Dimensionality',desc:'Where do random points live in high dimensions?',pts:100,color:'#FF6B35'},
-  {key:'c2',num:'02',icon:'👁',title:'The Invisible Attack',concept:'Adversarial Examples',desc:'Can invisible noise fool an AI?',pts:110,color:'#0047FF'},
+  {key:'c2',num:'02',icon:'🧪',title:'The Invisible Attack',concept:'Adversarial Examples',desc:'Compute the smallest invisible push that flips the model.',pts:110,color:'#0047FF'},
   {key:'c3',num:'03',icon:'🎯',title:'Beat the Neural Net',concept:'Overfitting',desc:'Can you draw a better boundary than AI?',pts:115,color:'#FF2D55'},
   {key:'c4',num:'04',icon:'👑',title:'Word Math Race',concept:'Word Vectors',desc:'King − Man + Woman = ?',pts:300,color:'#E8A020'},
   {key:'c5',num:'05',icon:'🚪',title:'The Monty Hall Trap',concept:"Bayes' Theorem",desc:'Should you switch doors?',pts:100,color:'#9B59B6'},
@@ -628,57 +629,66 @@ buildScreen('c2',`
 <div class="container">
   <div class="ch-header">
     <div class="ch-num">Challenge 02</div>
-    <div class="ch-icon">👁</div>
+    <div class="ch-icon">🧪</div>
     <h2>The Invisible Attack</h2>
   </div>
   <div class="question-box">
-    This AI looks at an image and says <strong>"3"</strong> with 95% confidence. I'm going to change each pixel by a tiny amount — so small you can't see it.<br><br>
-    <strong>Can I make the AI see a completely different number?</strong><br>
-    Find the smallest change ε that fools the AI.
+    The AI says <strong>"3"</strong> because digit 3 starts with a small score advantage of <strong>0.12</strong> over digit 7.<br><br>
+    Now four sensitive pixels are changed by the same tiny amount <strong>epsilon</strong>. Each one reduces that advantage by:
+    <div style="margin-top:1rem;padding:1rem 1.2rem;border:1px dashed rgba(7,8,15,.16);border-radius:16px;background:rgba(239,237,229,.55);font-family:var(--mono);font-style:normal;font-size:.84rem;line-height:1.8;">
+      1.2 epsilon<br>0.8 epsilon<br>0.6 epsilon<br>1.4 epsilon
+    </div>
+    <div style="margin-top:1rem;font-style:normal;">So the new advantage is <strong>A(epsilon)=0.12-(1.2epsilon+0.8epsilon+0.6epsilon+1.4epsilon)</strong>.</div>
+    <div style="margin-top:1rem;font-style:normal;"><strong>Find the smallest epsilon such that A(epsilon) &le; 0.</strong></div>
   </div>
   <div class="hints">
     <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
-    <div class="hint-content">Think of each pixel as a variable. The derivative ∂E/∂xᵢ tells you: if I change pixel i, how much does the AI's error change?</div>
+    <div class="hint-content">Group the epsilon terms: 1.2 + 0.8 + 0.6 + 1.4 = 4.0.</div>
     <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
-    <div class="hint-content">Change each pixel in the direction that INCREASES the error. Even tiny changes, all pushing together, can break the AI.</div>
+    <div class="hint-content">The smallest epsilon happens at the boundary, when the advantage becomes exactly 0. Solve 0.12 - 4 epsilon = 0.</div>
   </div>
-  <div class="canvas-wrap"><canvas id="c2-canvas" width="280" height="280"></canvas></div>
-  <div class="slider-row">
-    <label>ε =</label>
-    <input type="range" id="c2-slider" min="0" max="100" value="0" oninput="c2_update()">
-    <div class="val" id="c2-val">0.00</div>
+  <div class="choices" id="c2-choices">
+    <button class="choice-btn" onclick="c2_answer(this,0)">A) epsilon = 0.01</button>
+    <button class="choice-btn" onclick="c2_answer(this,1)">B) epsilon = 0.02</button>
+    <button class="choice-btn" onclick="c2_answer(this,2)">C) epsilon = 0.03</button>
+    <button class="choice-btn" onclick="c2_answer(this,3)">D) epsilon = 0.05</button>
   </div>
-  <p class="mono" id="c2-conf" style="margin:.5rem 0;">AI says: <strong>"3"</strong> — confidence <strong>95%</strong></p>
-  <button class="btn btn-primary btn-sm" id="c2-submit" onclick="c2_submit()">Submit ε</button>
+  <div id="c2-evidence" style="display:none;">
+    <div class="canvas-wrap"><canvas id="c2-canvas" width="280" height="280"></canvas></div>
+    <div class="slider-row">
+      <label>epsilon =</label>
+      <input type="range" id="c2-slider" min="0" max="60" value="30" oninput="c2_update()">
+      <div class="val" id="c2-val">0.030</div>
+    </div>
+    <p class="mono" id="c2-conf" style="margin:.5rem 0;">Advantage A(epsilon)=0.000 -> AI says <strong>"7"</strong></p>
+    <button class="btn btn-primary btn-sm" id="c2-submit" onclick="c2_submit()">Lock my epsilon</button>
+  </div>
   <div id="c2-proof" style="display:none;">
-    <div class="proof-block">Let f(x) be the AI's classification of image x.
-Let E(x) be the AI's error — how "wrong" the AI is.
+    <div class="proof-block">Start from the advantage:
+    A(epsilon)=0.12-(1.2epsilon+0.8epsilon+0.6epsilon+1.4epsilon)
 
-For each pixel xᵢ, compute the derivative:
-    ∂E/∂xᵢ = how much does the error change
-             if I change pixel i?
+Group the epsilon terms:
+    1.2+0.8+0.6+1.4=4.0
 
-If ∂E/∂xᵢ > 0: increasing xᵢ increases the error.
-If ∂E/∂xᵢ < 0: decreasing xᵢ increases the error.
+So
+    A(epsilon)=0.12-4epsilon
 
-Now change EVERY pixel by ε in that direction:
-    x'ᵢ = xᵢ + ε · sign(∂E/∂xᵢ)
+The flip happens when the advantage reaches 0:
+    0.12-4epsilon=0
+    4epsilon=0.12
+    epsilon=0.03
 
-Each pixel changes by at most ε (invisible if small).
-But all pixels push the error in the same direction.
-
-Result: at ε = 0.03, the image looks identical
-to a human, but f(x') = "7" instead of "3". <span class="qed">∎</span></div>
+So epsilon = 0.03 is the smallest invisible push that makes the two digits tie, and after that the AI flips. <span class="qed">∎</span></div>
     <div class="ai-link">
       <div class="ai-label">🤖 AI Connection</div>
-      <p>In 2015, Ian Goodfellow published this attack and shocked the field. In 2017, researchers put invisible stickers on a stop sign — a self-driving car read it as '60 km/h.' Today, every medical AI must be stress-tested against such attacks.</p>
+      <p>In 2015, Ian Goodfellow showed that an AI can be fooled by adding a tiny carefully chosen perturbation to every pixel. A human still sees the same image, but the model can suddenly change its answer. Soon after, researchers showed that small sticker-like patterns could make a road sign look normal to us but be misread by a self-driving system. This is why medical AI, autonomous systems, and security models must be tested against adversarial attacks before they are trusted.</p>
     </div>
     <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges →</button>
   </div>
 </div>
 `);
 
-let c2_fooled=false, c2_submitted=false;
+let c2_fooled=false, c2_submitted=false, c2_choiceCorrect=false;
 const c2_threshold=0.03, c2_digit=[[0,0,1,1,1,0,0],[0,1,0,0,0,1,0],[0,0,0,0,1,0,0],[0,0,0,1,0,0,0],[0,0,1,0,0,0,0],[0,1,0,0,0,0,0],[0,1,1,1,1,1,0]];
 function c2_drawDigit(ctx,eps){
   const W=280,S=W/7;
@@ -697,27 +707,35 @@ function c2_update(){
   document.getElementById('c2-val').textContent=eps.toFixed(3);
   const cv=document.getElementById('c2-canvas'),ctx=cv.getContext('2d');
   c2_drawDigit(ctx,eps);
-  // Simulate confidence
-  let conf=Math.max(0,95-eps*3000);
-  c2_fooled=eps>=c2_threshold;
-  if(c2_fooled){
-    document.getElementById('c2-conf').innerHTML='AI says: <strong style="color:var(--red);">"7"</strong> — confidence <strong>'+Math.round(89-((eps-c2_threshold)*500))+'%</strong> <span style="color:var(--teal);font-weight:700;">AI FOOLED ✓</span>';
-  } else {
-    document.getElementById('c2-conf').innerHTML='AI says: <strong>"3"</strong> — confidence <strong>'+Math.round(conf)+'%</strong>';
-  }
+  const advantage=0.12-4*eps;
+  c2_fooled=advantage<=0;
+  document.getElementById('c2-conf').innerHTML=c2_fooled ? 'Advantage A(epsilon) = <strong style="color:var(--red);">'+advantage.toFixed(3)+'</strong> -> AI says <strong style="color:var(--red);">"7"</strong>' : 'Advantage A(epsilon) = <strong>'+advantage.toFixed(3)+'</strong> -> AI says <strong>"3"</strong>';
+}
+function c2_answer(btn,idx){
+  if(c2_submitted) return;
+  c2_choiceCorrect=idx===2;
+  document.querySelectorAll('#c2-choices .choice-btn').forEach((b,i)=>{
+    if(i===2) b.classList.add('correct');
+    else if(i===idx&&idx!==2) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  document.getElementById('c2-evidence').style.display='block';
+  c2_update();
 }
 function c2_submit(){
   if(c2_submitted) return;
   c2_submitted=true;
   const eps=document.getElementById('c2-slider').value/1000;
-  let pts=c2_fooled?Math.round((1-eps)*100):10;
-  if(c2_fooled&&Math.abs(eps-c2_threshold)<0.02) pts+=10;
+  let pts=c2_choiceCorrect?100:30;
+  if(Math.abs(eps-c2_threshold)<0.005) pts+=10;
   addPts('c2',pts);
   document.getElementById('c2-submit').style.display='none';
   document.getElementById('c2-proof').style.display='block';
 }
-window.init_c2=function(){c2_submitted=false;c2_fooled=false;
-  document.getElementById('c2-slider').value=0;
+window.init_c2=function(){c2_submitted=false;c2_fooled=false;c2_choiceCorrect=false;
+  document.getElementById('c2-evidence').style.display='none';
+  document.querySelectorAll('#c2-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+  document.getElementById('c2-slider').value=30;
   document.getElementById('c2-submit').style.display='inline-flex';
   document.getElementById('c2-proof').style.display='none';
   c2_update();
@@ -1259,6 +1277,867 @@ window.init_c8=function(){c8_state={round:0,correct:0};
 };
 
 // Init
+document.title='AI x Math - MDM Math Maroc 2025';
+
+function applyRefreshCopy(){
+  const hero=document.getElementById('hero');
+  const finaleBtn=document.getElementById('finale-btn');
+  if(hero){
+    const heroTitle=hero.querySelector('h1');
+    const heroTag=hero.querySelector('.tagline');
+    const heroSub=hero.querySelector('.sub');
+    const heroButton=hero.querySelector('.btn-primary');
+    hero.style.background='var(--white)';
+    hero.style.color='var(--ink)';
+    if(heroSub) heroSub.style.color='var(--gray)';
+    if(heroTag) heroTag.style.color='var(--gray)';
+    if(heroTitle) heroTitle.innerHTML='AI <span>&times;</span> Math';
+    if(heroButton) heroButton.innerHTML='Start the Challenge &rarr;';
+    if(heroTag) heroTag.textContent='9 enigmas. Real math. Real AI. Start from school mathematics, then discover where it lands in the real world.';
+  }
+  if(finaleBtn) finaleBtn.innerHTML='Open Finale Wall &rarr;';
+  const finaleMsg=document.getElementById('finale-msg');
+  if(finaleMsg) finaleMsg.textContent='School mathematics quietly powers real AI systems.';
+}
+
+applyRefreshCopy();
+
+const cardOverrides={
+  c2:{icon:'🧪',desc:'Compute the smallest invisible push that flips the model.'},
+  c3:{icon:'🎯',desc:'Compare training success with test success.'},
+  c4:{icon:'👑',desc:'Solve vector analogies from easy to hard.',pts:400},
+  c5:{icon:'🚪'},
+  c6:{icon:'⚡',desc:'Solve a recurrence first, then connect it to AI.'},
+  c7:{icon:'🔦',desc:'Start simple, then tackle genuinely ambiguous pronouns.'},
+  c8:{icon:'🌍',title:'Applications of What You Learned',concept:'AI in the Real World',desc:'Match each mathematical idea to a real AI field.'}
+};
+CARDS.forEach(card=>{ if(cardOverrides[card.key]) Object.assign(card,cardOverrides[card.key]); });
+if(!CARDS.find(card=>card.key==='c9')){
+  CARDS.push({key:'c9',num:'09',icon:'🧩',title:'The Impossible Line',concept:'XOR and Hidden Layers',desc:'Can one single line separate these four points?',pts:120,color:'#0047FF'});
+}
+const orderedKeys=['c1','c2','c9','c3','c5','c6','c4','c7'];
+const orderedCards=orderedKeys.map(key=>CARDS.find(card=>card.key===key)).filter(Boolean);
+CARDS.length=0;
+orderedCards.forEach((card,i)=>{
+  card.num=String(i+1).padStart(2,'0');
+  CARDS.push(card);
+});
+
+renderGrid=function(){
+  const g=document.getElementById('card-grid');
+  const preview=document.getElementById('finale-preview');
+  g.innerHTML='';
+  let doneCount=0;
+  CARDS.forEach(c=>{
+    const isDone=G.done[c.key];
+    if(isDone) doneCount++;
+    const score=G.scores[c.key]||0;
+    g.innerHTML+=`
+      <div class="card ${isDone?'completed':''}" onclick="startChallenge('${c.key}')">
+        <div class="pts-badge">${isDone?score+' pts':'+'+c.pts+' pts'}</div>
+        <div class="num">${c.num}</div>
+        <div class="icon">${c.icon}</div>
+        <h3>${c.title}</h3>
+        <div class="concept">${c.concept}</div>
+        <div class="desc">${c.desc}</div>
+      </div>`;
+  });
+  document.getElementById('grid-sub').textContent=`${doneCount} / 8 completed · ${G.pts} pts`;
+  document.getElementById('finale-btn').style.display=doneCount>=8?'inline-flex':'none';
+  if(preview){
+    preview.innerHTML=`
+      <div class="card" style="cursor:default;border-style:dashed;background:linear-gradient(180deg, rgba(232,160,32,.04), #fff);">
+        <div class="pts-badge" style="background:${doneCount>=8?'rgba(0,184,138,.12)':'rgba(7,8,15,.06)'};color:${doneCount>=8?'var(--teal)':'var(--gray)'};">${doneCount>=8?'Unlocked':'Locked until 8/8'}</div>
+        <div class="num">Final Reveal</div>
+        <div class="icon">🌍</div>
+        <h3>Same Math, Real Systems</h3>
+        <div class="concept">Applications Finale</div>
+        <div class="desc">This opens after all 8 challenges and shows where these ideas land in medicine, finance, aviation, robotics, language, and climate AI.</div>
+      </div>`;
+  }
+  renderHudDots();
+};
+
+showFinale=function(){
+  const finale=document.getElementById('finale');
+  finale.style.background='var(--white)';
+  finale.style.color='var(--ink)';
+  finale.innerHTML=`
+    <div class="sub" style="color:var(--gray);">Grand Finale</div>
+    <h1>Same Math, Real Systems</h1>
+    <div class="final-score" id="final-score">${G.pts}</div>
+    <p class="tagline" id="finale-msg" style="color:var(--gray);max-width:760px;">What felt like olympiad-style puzzles is already powering systems people use every day.</p>
+    <div id="finale-wall" style="width:min(1100px,100%);display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:1rem;"></div>
+    <div class="ai-link" style="width:min(900px,100%);text-align:left;">
+      <div class="ai-label">Closing Thought</div>
+      <p>Distance, probability, recurrence, and attention are not separate chapters anymore. In AI, they meet inside one system.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('leaderboard')" style="margin-top:1rem;">See Leaderboard &rarr;</button>
+  `;
+  const domains=[
+    {emoji:'🫀',name:'Medicine',math:'Robust pattern reading',blurb:'ECG, MRI, and pathology AI must stay correct even when signals are noisy.'},
+    {emoji:'💳',name:'Finance',math:'Probability updates',blurb:'Fraud systems keep revising risk as new transactions arrive.'},
+    {emoji:'✈️',name:'Aviation',math:'Optimization + perception',blurb:'Routing, maintenance, and runway vision all depend on stable learning.'},
+    {emoji:'🤖',name:'Robotics',math:'Control by recurrence',blurb:'Robots reduce error step by step without overshooting the target.'},
+    {emoji:'🗣️',name:'Language',math:'Vectors + attention',blurb:'Chatbots turn words into geometry, then focus on what matters.'},
+    {emoji:'🌦️',name:'Climate',math:'Generalization',blurb:'Forecasts must work on new regions, not just on yesterday’s data.'}
+  ];
+  const wall=finale.querySelector('#finale-wall');
+  domains.forEach(domain=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.textAlign='left';
+    card.style.cursor='default';
+    card.innerHTML=`<div class="icon">${domain.emoji}</div><h3>${domain.name}</h3><div class="concept">${domain.math}</div><div class="desc">${domain.blurb}</div>`;
+    wall.appendChild(card);
+  });
+};
+
+window.setChallengeScreen=function(key,html){
+  const screen=document.getElementById(key);
+  if(screen) screen.innerHTML=html;
+  else buildScreen(key,html);
+};
+
+setChallengeScreen('c3', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 03</div><div class="ch-icon">🎯</div><h2>Beat the Neural Net</h2></div>
+  <div class="question-box">
+    Two classifiers were tested on the same problem.<br><br>
+    Model A: training accuracy = <strong>100%</strong>, test accuracy = <strong>60%</strong><br>
+    Model B: training accuracy = <strong>90%</strong>, test accuracy = <strong>80%</strong><br><br>
+    Define the generalization gap by <strong>gap = training - test</strong>.<br>
+    <strong>Compute the two gaps and choose which model really learned the pattern.</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">A smaller gap means the model behaves more similarly on new data.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Compute 100 - 60 and 90 - 80, then compare.</div>
+  </div>
+  <div class="choices" id="c3-choices">
+    <button class="choice-btn" onclick="c3_answer(0)">A) gap(A) = 10, gap(B) = 10, so both are equally safe</button>
+    <button class="choice-btn" onclick="c3_answer(1)">B) gap(A) = 40, gap(B) = 10, so Model B generalizes better</button>
+  </div>
+  <div class="canvas-wrap"><canvas id="c3-canvas" width="500" height="400"></canvas></div>
+  <button class="btn btn-sm btn-primary" id="c3-reveal" style="display:none;" onclick="c3_reveal()">Reveal test dots &rarr;</button>
+  <div id="c3-proof" style="display:none;">
+    <div class="proof-block">Use
+    gap = training - test
+
+For Model A:
+    gap(A) = 100 - 60 = 40
+
+For Model B:
+    gap(B) = 90 - 80 = 10
+
+Model B has the smaller gap, so it is more stable on new data.
+The complex model fits the training set perfectly, but it loses 40 points on unseen dots.
+
+That is overfitting:
+    memorizing the sample instead of learning the pattern. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>In real AI, a model that looks brilliant on old data can fail badly on new hospitals, new cameras, or new cities. Test accuracy matters because the future never looks exactly like the training set.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+let c3_correctPick=false;
+c3_answer=function(idx){
+  if(c3_done) return;
+  c3_done=true;
+  c3_correctPick=idx===1;
+  document.querySelectorAll('#c3-choices .choice-btn').forEach((b,i)=>{
+    if(i===1) b.classList.add('correct');
+    else if(i===idx&&idx!==1) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  c3_draw(false);
+  document.getElementById('c3-reveal').style.display='inline-flex';
+};
+c3_reveal=function(){
+  c3_draw(true);
+  document.getElementById('c3-reveal').style.display='none';
+  addPts('c3',c3_correctPick?100:35);
+  document.getElementById('c3-proof').style.display='block';
+};
+window.init_c3=function(){
+  c3_done=false;
+  c3_correctPick=false;
+  document.getElementById('c3-reveal').style.display='none';
+  document.getElementById('c3-proof').style.display='none';
+  document.querySelectorAll('#c3-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+  c3_draw(false);
+};
+
+setChallengeScreen('c4', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 04</div><div class="ch-icon">👑</div><h2>Word Math Race</h2></div>
+  <div class="question-box">
+    Treat each analogy like an equation with words.<br><br>
+    Example:
+    <strong>King - Man + Woman = Queen</strong><br><br>
+    <strong>Solve the missing word each time. The rounds start easy, then become harder.</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">Keep the relation, not the letters. "capital of", "male to female", and "old theory to new theory" can all act like directions.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Read it as: A is to B as ? is to C.</div>
+  </div>
+  <div id="c4-game">
+    <p class="mono" style="margin-bottom:.5rem;">Round <strong id="c4-round">1</strong>/4 · <span id="c4-timer" style="color:var(--red);">15s</span></p>
+    <h3 id="c4-q" style="font-size:1.3rem;margin:1rem 0;"></h3>
+    <div class="choices" id="c4-opts"></div>
+  </div>
+  <div id="c4-proof" style="display:none;">
+    <div class="proof-block">Word vectors turn analogies into arithmetic.
+
+Examples:
+    V(Rabat) - V(Morocco) + V(France) ≈ V(Paris)
+    V(King) - V(Man) + V(Woman) ≈ V(Queen)
+    V(Newton) - V(Gravity) + V(Relativity) ≈ V(Einstein)
+
+The same relation behaves like a direction in space.
+That is why solving the analogy feels like solving an equation:
+    known relation + new context = missing word. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>When AI reads huge amounts of text, it discovers that some relations are geometric. Nobody programs "capital of" or "scientific successor" by hand. The model infers those directions from patterns.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+c4_rounds.splice(0,c4_rounds.length,
+  {q:'Rabat - Morocco + France = ?',opts:['Paris','Madrid','Algiers','London'],ans:0},
+  {q:'King - Man + Woman = ?',opts:['Queen','Princess','Mother','Daughter'],ans:0},
+  {q:'Newton - Gravity + Relativity = ?',opts:['Einstein','Gauss','Tesla','Euclid'],ans:0},
+  {q:'Euclid - Geometry + Algebra = ?',opts:['Al-Khwarizmi','Archimedes','Kepler','Pascal'],ans:0}
+);
+window.init_c4=function(){
+  clearInterval(c4_state.timer);
+  c4_state={round:0,pts:0,timer:null,timeLeft:15};
+  document.getElementById('c4-game').style.display='block';
+  document.getElementById('c4-proof').style.display='none';
+  c4_startRound();
+};
+
+setChallengeScreen('c5', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 05</div><div class="ch-icon">🚪</div><h2>The Monty Hall Trap</h2></div>
+  <div class="question-box">
+    You choose one of 3 doors. The prize is equally likely to be behind any door.<br><br>
+    The host knows where the prize is and always opens a different door with no prize behind it.<br><br>
+    <strong>Compute the probability of winning if you switch.</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">At the beginning, your chosen door has probability 1/3. The other two doors together have probability 2/3.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">When the host removes one losing door, the full 2/3 transfers to the single unopened door you did not choose.</div>
+  </div>
+  <div class="choices" id="c5-theory">
+    <button class="choice-btn" onclick="c5_theory(this,0)">A) P = 1/3</button>
+    <button class="choice-btn" onclick="c5_theory(this,1)">B) P = 1/2</button>
+    <button class="choice-btn" onclick="c5_theory(this,2)">C) P = 2/3</button>
+    <button class="choice-btn" onclick="c5_theory(this,3)">D) It depends</button>
+  </div>
+  <div id="c5-game" style="display:none;">
+    <h3>Now test it in 5 rounds</h3>
+    <p class="mono" id="c5-stats" style="margin:.5rem 0;">Round <span id="c5-round">1</span>/5 · Switched wins: <span id="c5-sw">0</span>/<span id="c5-swt">0</span> · Stayed wins: <span id="c5-stw">0</span>/<span id="c5-stt">0</span></p>
+    <div id="c5-doors" style="display:flex;gap:1rem;justify-content:center;margin:1.5rem 0;flex-wrap:wrap;"></div>
+    <div id="c5-action" style="display:none;text-align:center;">
+      <p style="margin-bottom:1rem;font-weight:600;" id="c5-reveal-text"></p>
+      <button class="btn btn-outline btn-sm" onclick="c5_decide('stay')">Stay</button>
+      <button class="btn btn-primary btn-sm" onclick="c5_decide('switch')" style="margin-left:.5rem;">Switch</button>
+    </div>
+  </div>
+  <div id="c5-proof" style="display:none;">
+    <div class="proof-block">Case count:
+    stay wins only if your first choice was correct
+    P(stay wins) = 1/3
+
+So
+    P(switch wins) = 1 - 1/3 = 2/3
+
+You can also write it as a conditional probability idea:
+    P(prize behind remaining unopened door | host opened a losing door) = 2/3
+
+The host is not giving random information.
+The host is revealing a goat on purpose, so the 2/3 probability on "the other doors" collapses onto one surviving door. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>AI systems update beliefs when new evidence arrives. Spam filters, fraud detection, and medical diagnosis all use this same logic: start with probabilities, then revise them when information is revealed.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+setChallengeScreen('c7', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 07</div><div class="ch-icon">🔦</div><h2>The Attention Spotlight</h2></div>
+  <div class="question-box">
+    For one word, the AI computes a relevance score to every earlier word in the sentence.<br><br>
+    The attention weight is proportional to <strong>exp(score)</strong>, so the biggest score gets the biggest weight.<br><br>
+    <strong>Compute which word wins the spotlight in each round.</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div>
+    <div class="hint-content">You do not need to calculate all the exponentials. Just compare the raw scores.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div>
+    <div class="hint-content">Because exp(x) increases with x, the largest score stays the largest after normalization.</div>
+  </div>
+  <div id="c7-game">
+    <p class="mono" style="margin-bottom:.5rem;">Round <strong id="c7-round">1</strong>/3 · Your bet: <span id="c7-bet-display">-</span></p>
+    <p style="font-size:1.1rem;margin:1rem 0;" id="c7-sentence"></p>
+    <p class="mono" id="c7-q-text" style="margin-bottom:.5rem;"></p>
+    <div id="c7-score-table" class="proof-block" style="margin:0 0 1rem 0;background:rgba(239,237,229,.45);"></div>
+    <div class="slider-row" id="c7-bet-row">
+      <label>Bet:</label>
+      <input type="range" id="c7-bet" min="10" max="50" value="20">
+      <div class="val" id="c7-bet-val">20 pts</div>
+    </div>
+    <div class="choices" id="c7-opts"></div>
+  </div>
+  <div id="c7-proof" style="display:none;">
+    <div class="proof-block">Attention starts from scores:
+    score(i,j)
+
+Then it turns them into weights:
+    weight(i,j) = exp(score(i,j)) / sum_k exp(score(i,k))
+
+You do not always need the exact decimals.
+Since exp(x) is increasing:
+    bigger score -> bigger exp(score) -> bigger attention weight
+
+So in each round, the winning word is simply the one with the largest raw score. <span class="qed">∎</span></div>
+    <div class="ai-link">
+      <div class="ai-label">🤖 AI Connection</div>
+      <p>This scoring-and-normalizing idea is the core of transformer models. Chatbots read by repeatedly asking: which earlier words matter most right now?</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+c7_rounds.splice(0,c7_rounds.length,
+  {sentence:'"The cat sat on the mat because <u>it</u> was tired."',q:'Which word gets the largest attention weight from "it"?',opts:['cat','mat','sat','because'],ans:0,weights:[62,18,7,13],scores:[4.2,1.8,0.7,1.1]},
+  {sentence:'"The trophy did not fit in the suitcase because <u>it</u> was too big."',q:'Which word gets the largest attention weight from "it"?',opts:['trophy','suitcase','fit','big'],ans:0,weights:[66,20,5,9],scores:[4.6,2.8,1.0,1.5]},
+  {sentence:'"The city council refused the demonstrators a permit because <u>they</u> feared violence."',q:'Which phrase gets the largest attention weight from "they"?',opts:['city council','demonstrators','permit','violence'],ans:0,weights:[47,31,8,14],scores:[3.8,3.2,1.1,1.6]}
+);
+window.c7_startRound=function(){
+  const r=c7_rounds[c7_state.round];
+  document.getElementById('c7-round').textContent=c7_state.round+1;
+  document.getElementById('c7-sentence').innerHTML=r.sentence;
+  document.getElementById('c7-q-text').textContent=r.q;
+  document.getElementById('c7-score-table').innerHTML=r.opts.map((opt,i)=>`${opt} : score = ${r.scores[i]}`).join('<br>');
+  document.getElementById('c7-bet').value=20;
+  document.getElementById('c7-bet-val').textContent='20 pts';
+  document.getElementById('c7-bet-display').textContent='-';
+  document.getElementById('c7-bet').oninput=function(){document.getElementById('c7-bet-val').textContent=this.value+' pts';};
+  const opts=document.getElementById('c7-opts');
+  opts.innerHTML='';
+  r.opts.forEach((o,i)=>{opts.innerHTML+=`<button class="choice-btn" onclick="c7_pick(${i})">${o}</button>`;});
+  document.getElementById('c7-bet-row').style.display='flex';
+};
+window.c7_pick=function(idx){
+  const r=c7_rounds[c7_state.round];
+  const bet=parseInt(document.getElementById('c7-bet').value,10);
+  document.getElementById('c7-bet-display').textContent=bet+' pts on "'+r.opts[idx]+'"';
+  document.querySelectorAll('#c7-opts .choice-btn').forEach((b,i)=>{
+    b.innerHTML=r.opts[i]+' <span style="color:var(--blue);font-size:.8rem;">score '+r.scores[i]+' -> '+r.weights[i]+'%</span>';
+    if(i===r.ans) b.classList.add('correct');
+    else if(i===idx&&idx!==r.ans) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  document.getElementById('c7-bet-row').style.display='none';
+  if(idx===r.ans){c7_state.pts+=bet;toast(`Correct! +${bet}`,'good');}
+  else{toast('Wrong!','bad');}
+  c7_state.round++;
+  if(c7_state.round<c7_rounds.length){
+    setTimeout(c7_startRound,1500);
+  } else {
+    setTimeout(()=>{
+      addPts('c7',c7_state.pts);
+      document.getElementById('c7-game').style.display='none';
+      document.getElementById('c7-proof').style.display='block';
+    },1500);
+  }
+};
+window.init_c7=function(){
+  c7_state={round:0,pts:0};
+  document.getElementById('c7-game').style.display='block';
+  document.getElementById('c7-proof').style.display='none';
+  c7_startRound();
+};
+
+setChallengeScreen('c2', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 02</div><div class="ch-icon">🧪</div><h2>The Invisible Attack</h2></div>
+  <div class="question-box">
+    The AI says <strong>"3"</strong> because digit 3 starts with a small score advantage of <strong>0.12</strong> over digit 7.<br><br>
+    Now four sensitive pixels are changed by the same tiny amount <strong>epsilon</strong>. Each one reduces that advantage by:
+    <div style="margin-top:1rem;padding:1rem 1.2rem;border:1px dashed rgba(7,8,15,.16);border-radius:16px;background:rgba(239,237,229,.55);font-family:var(--mono);font-style:normal;font-size:.84rem;line-height:1.8;">
+      1.2 epsilon<br>0.8 epsilon<br>0.6 epsilon<br>1.4 epsilon
+    </div>
+    <div style="margin-top:1rem;font-style:normal;">So the new advantage is <strong>A(epsilon)=0.12-(1.2epsilon+0.8epsilon+0.6epsilon+1.4epsilon)</strong>.</div>
+    <div style="margin-top:1rem;font-style:normal;"><strong>Find the smallest epsilon such that A(epsilon) &le; 0.</strong></div>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div><div class="hint-content">Group the epsilon terms: 1.2 + 0.8 + 0.6 + 1.4 = 4.0.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div><div class="hint-content">The smallest epsilon happens at the boundary, when the advantage becomes exactly 0. Solve 0.12 - 4 epsilon = 0.</div>
+  </div>
+  <div class="choices" id="c2-choices">
+    <button class="choice-btn" onclick="c2_answer(this,0)">A) epsilon = 0.01</button>
+    <button class="choice-btn" onclick="c2_answer(this,1)">B) epsilon = 0.02</button>
+    <button class="choice-btn" onclick="c2_answer(this,2)">C) epsilon = 0.03</button>
+    <button class="choice-btn" onclick="c2_answer(this,3)">D) epsilon = 0.05</button>
+  </div>
+  <div id="c2-evidence" style="display:none;">
+    <div class="canvas-wrap"><canvas id="c2-canvas" width="280" height="280"></canvas></div>
+    <div class="slider-row"><label>epsilon =</label><input type="range" id="c2-slider" min="0" max="60" value="30" oninput="c2_update()"><div class="val" id="c2-val">0.030</div></div>
+    <p class="mono" id="c2-conf" style="margin:.5rem 0;">Advantage A(epsilon)=0.000 -> AI says <strong>"7"</strong></p>
+    <button class="btn btn-primary btn-sm" id="c2-submit" onclick="c2_submit()">Lock my epsilon</button>
+  </div>
+  <div id="c2-proof" style="display:none;">
+    <div class="proof-block">Start from the advantage:
+    A(epsilon)=0.12-(1.2epsilon+0.8epsilon+0.6epsilon+1.4epsilon)
+
+Group the epsilon terms:
+    1.2+0.8+0.6+1.4=4.0
+
+So
+    A(epsilon)=0.12-4epsilon
+
+The flip happens when the advantage reaches 0:
+    0.12-4epsilon=0
+    4epsilon=0.12
+    epsilon=0.03
+
+So epsilon = 0.03 is the smallest invisible push that makes the two digits tie, and after that the AI flips. <span class="qed">∎</span></div>
+    <div class="ai-link"><div class="ai-label">🤖 AI Connection</div><p>In 2015, Ian Goodfellow showed that an AI can be fooled by adding a tiny carefully chosen perturbation to every pixel. A human still sees the same image, but the model can suddenly change its answer. Soon after, researchers showed that small sticker-like patterns could make a road sign look normal to us but be misread by a self-driving system. This is the same math you just used: many tiny pixel changes, all chosen in the most damaging direction, can push the image across the decision boundary. Today, this is why medical AI, autonomous systems, and security models must be tested against adversarial attacks before they are trusted.</p></div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+c2_fooled=false; c2_submitted=false; let c2_correctPick=false;
+c2_update=function(){
+  const eps=document.getElementById('c2-slider').value/1000;
+  document.getElementById('c2-val').textContent=eps.toFixed(3);
+  const cv=document.getElementById('c2-canvas'),ctx=cv.getContext('2d');
+  c2_drawDigit(ctx,eps);
+  const margin=0.12-4*eps;
+  c2_fooled=margin<=0;
+  document.getElementById('c2-conf').innerHTML=c2_fooled ? 'Advantage A(epsilon) = <strong style="color:var(--red);">'+margin.toFixed(3)+'</strong> -> AI says <strong style="color:var(--red);">"7"</strong>' : 'Advantage A(epsilon) = <strong>'+margin.toFixed(3)+'</strong> -> AI says <strong>"3"</strong>';
+};
+c2_answer=function(btn,idx){
+  if(c2_submitted) return;
+  c2_correctPick=idx===2;
+  document.querySelectorAll('#c2-choices .choice-btn').forEach((b,i)=>{ if(i===2) b.classList.add('correct'); else if(i===idx&&idx!==2) b.classList.add('wrong'); b.style.pointerEvents='none'; });
+  document.getElementById('c2-evidence').style.display='block';
+  c2_update();
+};
+c2_submit=function(){
+  if(c2_submitted) return;
+  c2_submitted=true;
+  const eps=document.getElementById('c2-slider').value/1000;
+  let pts=c2_correctPick?100:30;
+  if(Math.abs(eps-0.03)<0.005) pts+=10;
+  addPts('c2',pts);
+  document.getElementById('c2-submit').style.display='none';
+  document.getElementById('c2-proof').style.display='block';
+};
+window.init_c2=function(){
+  c2_submitted=false; c2_fooled=false; c2_correctPick=false;
+  document.getElementById('c2-evidence').style.display='none';
+  document.getElementById('c2-slider').value=30;
+  document.getElementById('c2-submit').style.display='inline-flex';
+  document.getElementById('c2-proof').style.display='none';
+  document.querySelectorAll('#c2-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+  c2_update();
+};
+
+setChallengeScreen('c6', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 06</div><div class="ch-icon">⚡</div><h2>The Learning Rate Race</h2></div>
+  <div class="question-box">
+    A robot is trying to reach a target. Right now it is <strong>12 meters away</strong>.<br><br>
+    At each step, it moves a fraction <strong>alpha</strong> of the remaining distance:
+    <strong>d<sub>k+1</sub>=(1-alpha)d<sub>k</sub></strong>.<br><br>
+    <strong>Which value of alpha makes the robot land exactly on the target in one step?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div><div class="hint-content">Exact landing means d1 = 0.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div><div class="hint-content">Solve (1-alpha)·12 = 0.</div>
+  </div>
+  <div class="choices" id="c6-theory">
+    <button class="choice-btn" onclick="c6_theory(this,0)">A) alpha = 0.25</button>
+    <button class="choice-btn" onclick="c6_theory(this,1)">B) alpha = 0.50</button>
+    <button class="choice-btn" onclick="c6_theory(this,2)">C) alpha = 1.00</button>
+    <button class="choice-btn" onclick="c6_theory(this,3)">D) alpha = 1.50</button>
+  </div>
+  <div id="c6-evidence" style="display:none;">
+    <div class="canvas-wrap"><canvas id="c6-canvas" width="520" height="220"></canvas></div>
+    <div class="slider-row"><label>alpha =</label><input type="range" id="c6-alpha" min="0" max="180" value="100" oninput="c6_setAlpha()"><div class="val" id="c6-alpha-val">1.00</div></div>
+    <p class="mono" id="c6-info">Step 0 · distance = 12.00</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;"><button class="btn btn-sm btn-primary" onclick="c6_step()">Step &rarr;</button><button class="btn btn-sm btn-outline" onclick="c6_reset()">Reset</button><button class="btn btn-sm btn-gold" id="c6-done" style="display:none;" onclick="c6_finish()">Done</button></div>
+  </div>
+  <div id="c6-proof" style="display:none;">
+    <div class="proof-block">The recurrence is
+    d(k+1)=(1-alpha)d(k)
+
+To land exactly in one move:
+    d(1)=0
+
+Starting from d(0)=12:
+    d(1)=(1-alpha)12
+    (1-alpha)12=0
+    alpha=1
+
+More generally:
+    d(k)=(1-alpha)^k d(0)
+
+If 0<alpha<1, the robot approaches slowly.
+If alpha=1, it lands exactly.
+If 1<alpha<2, it overshoots and bounces.
+If alpha>=2, the process diverges. <span class="qed">∎</span></div>
+    <div class="ai-link"><div class="ai-label">🤖 AI Connection</div><p>This is the same idea as a learning rate in AI training: too small is slow, too large overshoots, and the right value makes learning fast and stable.</p></div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+let c6_theoryCorrect=false;
+let c6_state2={distance:12,steps:0,alpha:1,done:false,path:[12]};
+window.c6_setAlpha=function(){ c6_state2.alpha=document.getElementById('c6-alpha').value/100; document.getElementById('c6-alpha-val').textContent=c6_state2.alpha.toFixed(2); };
+window.c6_draw=function(){
+  const cv=document.getElementById('c6-canvas'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  const startX=50,endX=W-50,y=120;
+  ctx.strokeStyle='rgba(7,8,15,.18)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(startX,y); ctx.lineTo(endX,y); ctx.stroke();
+  ctx.fillStyle='var(--teal)'; ctx.beginPath(); ctx.arc(endX,y,8,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='var(--ink)'; ctx.font='600 13px "Space Grotesk"'; ctx.textAlign='center'; ctx.fillText('target',endX,y-18);
+  c6_state2.path.forEach((d,i)=>{ const x=endX - Math.min(Math.abs(d),24)/24*(endX-startX)*(d<0?-1:1); ctx.beginPath(); ctx.arc(x,y,i===c6_state2.path.length-1?9:5,0,Math.PI*2); ctx.fillStyle=i===c6_state2.path.length-1?'var(--blue)':'rgba(0,71,255,.25)'; ctx.fill(); });
+};
+window.c6_theory=function(btn,idx){
+  if(c6_state2.done) return;
+  c6_theoryCorrect=idx===2;
+  document.querySelectorAll('#c6-theory .choice-btn').forEach((b,i)=>{ if(i===2) b.classList.add('correct'); else if(i===idx&&idx!==2) b.classList.add('wrong'); b.style.pointerEvents='none'; });
+  document.getElementById('c6-evidence').style.display='block';
+  c6_reset();
+};
+window.c6_step=function(){
+  if(c6_state2.done) return;
+  c6_state2.distance=(1-c6_state2.alpha)*c6_state2.distance;
+  c6_state2.steps++;
+  c6_state2.path.push(c6_state2.distance);
+  c6_draw();
+  const absDist=Math.abs(c6_state2.distance);
+  document.getElementById('c6-info').textContent=absDist>24 ? 'DIVERGED. Alpha is too large.' : `Step ${c6_state2.steps} · distance = ${c6_state2.distance.toFixed(2)}`;
+  if(absDist<0.1) document.getElementById('c6-done').style.display='inline-flex';
+};
+window.c6_reset=function(){
+  c6_state2={distance:12,steps:0,alpha:document.getElementById('c6-alpha').value/100,done:false,path:[12]};
+  document.getElementById('c6-info').textContent='Step 0 · distance = 12.00';
+  document.getElementById('c6-done').style.display='none';
+  c6_draw();
+};
+window.c6_finish=function(){ if(c6_state2.done) return; c6_state2.done=true; let pts=c6_theoryCorrect?100:35; if(c6_state2.steps===1) pts+=10; addPts('c6',pts); document.getElementById('c6-proof').style.display='block'; };
+window.init_c6=function(){ c6_theoryCorrect=false; document.getElementById('c6-evidence').style.display='none'; document.getElementById('c6-proof').style.display='none'; document.querySelectorAll('#c6-theory .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';}); document.getElementById('c6-alpha').value=100; c6_reset(); };
+
+setChallengeScreen('c8', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 08</div><div class="ch-icon">🌍</div><h2>Applications of What You Learned</h2></div>
+  <div class="question-box">Every idea you solved already appears in real AI systems.<br><br><strong>For each field, choose the mathematical idea that matters most.</strong></div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div><div class="hint-content">Ask yourself: which earlier challenge does this scenario feel closest to?</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div><div class="hint-content">One field can use many ideas. You only need the dominant one here.</div>
+  </div>
+  <div id="c8-game"><p class="mono" style="margin-bottom:.5rem;">Round <strong id="c8-round">1</strong>/4 · Score: <strong id="c8-acc">0</strong></p><div class="question-box" style="margin-top:0;" id="c8-prompt"></div><div class="choices" id="c8-opts" style="margin-top:1rem;"></div></div>
+  <div id="c8-proof" style="display:none;"><div style="text-align:center;margin:1.5rem 0;"><p class="mono">Your capstone score: <strong id="c8-final-acc" style="font-size:1.5rem;">0</strong></p></div><div class="proof-block">AI is not one trick. It is geometry, probability, recurrence, optimization, attention, and robustness working together. Now open the finale wall to see where each one lands in the real world. <span class="qed">∎</span></div><button class="btn btn-gold" onclick="nav('finale')" style="margin-top:1rem;">Open the Finale Wall &rarr;</button></div>
+</div>`);
+
+const c8_app_cases=[
+  {prompt:'A medical AI turns a heartbeat or scan into a representation the model can compare. Which idea is dominant?',opts:['Encoding the signal as geometry','Door switching','Pronoun attention','Memorizing every patient'],ans:0},
+  {prompt:'A fraud detector updates the probability of fraud after one suspicious transaction. Which idea is dominant?',opts:['Bayesian updating','Word vectors','Curse of dimensionality','Interpolation only'],ans:0},
+  {prompt:'A self-driving vision system must resist tiny sticker-like changes on a road sign. Which idea is dominant?',opts:['Adversarial robustness','Capital-city analogies','Monty Hall','Leaderboard scoring'],ans:0},
+  {prompt:'A robot keeps reducing its error step by step without overshooting. Which idea is dominant?',opts:['Stable update rules and step size','Word analogies','Bayes only','Overfitting by memorization'],ans:0}
+];
+window.c8_startRound=function(){
+  const item=c8_app_cases[c8_state.round];
+  document.getElementById('c8-round').textContent=c8_state.round+1;
+  document.getElementById('c8-acc').textContent=c8_state.correct*20;
+  document.getElementById('c8-prompt').innerHTML=item.prompt;
+  const opts=document.getElementById('c8-opts'); opts.innerHTML='';
+  item.opts.forEach((opt,i)=>{ opts.innerHTML+=`<button class="choice-btn" onclick="c8_pick(${i})">${opt}</button>`; });
+};
+window.c8_pick=function(idx){
+  const item=c8_app_cases[c8_state.round];
+  const correct=idx===item.ans;
+  if(correct) c8_state.correct++;
+  document.querySelectorAll('#c8-opts .choice-btn').forEach((b,i)=>{ if(i===item.ans) b.classList.add('correct'); else if(i===idx) b.classList.add('wrong'); b.style.pointerEvents='none'; });
+  toast(correct?'Correct':'Not this one',correct?'good':'bad');
+  c8_state.round++;
+  if(c8_state.round<c8_app_cases.length) setTimeout(c8_startRound,1200);
+  else setTimeout(()=>{ let pts=c8_state.correct*20; if(c8_state.correct>=3) pts+=20; addPts('c8',pts); document.getElementById('c8-final-acc').textContent=pts+' pts'; document.getElementById('c8-game').style.display='none'; document.getElementById('c8-proof').style.display='block'; },1200);
+};
+window.init_c8=function(){ c8_state={round:0,correct:0}; document.getElementById('c8-game').style.display='block'; document.getElementById('c8-proof').style.display='none'; c8_startRound(); };
+
+setChallengeScreen('c9', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 09</div><div class="ch-icon">🧩</div><h2>The Impossible Line</h2></div>
+  <div class="question-box">Blue points are at <strong>(0,0)</strong> and <strong>(1,1)</strong>. Red points are at <strong>(0,1)</strong> and <strong>(1,0)</strong>.<br><br><strong>Can one single line separate the blue points from the red points?</strong></div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div><div class="hint-content">Assume a line exists: ax + by + c = 0.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div><div class="hint-content">Turn each corner into an inequality according to its color.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 3</div><div class="hint-content">Add the red inequalities and compare them with the blue ones.</div>
+  </div>
+  <div class="choices" id="c9-choices"><button class="choice-btn" onclick="c9_answer(0)">A) Yes, one line is enough</button><button class="choice-btn" onclick="c9_answer(1)">B) No, one line can never do it</button></div>
+  <div id="c9-evidence" style="display:none;">
+    <div class="canvas-wrap"><canvas id="c9-canvas" width="520" height="360"></canvas></div>
+    <p class="mono" id="c9-msg" style="margin:.5rem 0;">Drag the line. It always fails on at least one corner.</p>
+    <div class="slider-row"><label>a =</label><input type="range" id="c9-a" min="-200" max="200" value="100" oninput="c9_draw()"><div class="val" id="c9-a-val">1.00</div></div>
+    <div class="slider-row"><label>b =</label><input type="range" id="c9-b" min="-200" max="200" value="100" oninput="c9_draw()"><div class="val" id="c9-b-val">1.00</div></div>
+    <div class="slider-row"><label>c =</label><input type="range" id="c9-c" min="-200" max="200" value="-100" oninput="c9_draw()"><div class="val" id="c9-c-val">-1.00</div></div>
+    <button class="btn btn-primary btn-sm" onclick="c9_finish()">Reveal proof</button>
+  </div>
+  <div id="c9-proof" style="display:none;">
+    <div class="proof-block">Assume blue points satisfy > 0 and red points satisfy < 0 for one line ax + by + c = 0.
+
+From the four corners:
+    (0,0) blue -> c > 0
+    (1,1) blue -> a + b + c > 0
+    (0,1) red  -> b + c < 0
+    (1,0) red  -> a + c < 0
+
+Add the two red inequalities:
+    a + b + 2c < 0
+
+But from c > 0 and a + b + c > 0 we get:
+    a + b + 2c > 0
+
+Contradiction.
+So one single line can never separate XOR. <span class="qed">∎</span></div>
+    <div class="ai-link"><div class="ai-label">🤖 AI Connection</div><p>A single perceptron fails on XOR. Hidden layers create nonlinear boundaries, which is one reason neural networks became powerful.</p></div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+let c9_correct=false,c9_answered=false;
+window.c9_draw=function(){
+  const a=document.getElementById('c9-a').value/100, b=document.getElementById('c9-b').value/100, c=document.getElementById('c9-c').value/100;
+  document.getElementById('c9-a-val').textContent=a.toFixed(2); document.getElementById('c9-b-val').textContent=b.toFixed(2); document.getElementById('c9-c-val').textContent=c.toFixed(2);
+  const cv=document.getElementById('c9-canvas'),ctx=cv.getContext('2d'),W=cv.width,H=cv.height,pad=80;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(7,8,15,.2)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,H-pad); ctx.lineTo(W-pad,pad); ctx.stroke();
+  const pts=[{x:0,y:0,color:'#0047FF',label:'(0,0)'},{x:1,y:1,color:'#0047FF',label:'(1,1)'},{x:0,y:1,color:'#FF2D55',label:'(0,1)'},{x:1,y:0,color:'#FF2D55',label:'(1,0)'}];
+  pts.forEach(p=>{ const px=pad+p.x*(W-2*pad), py=H-pad-p.y*(H-2*pad); ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2); ctx.fillStyle=p.color; ctx.fill(); ctx.fillStyle='var(--ink)'; ctx.font='12px "JetBrains Mono"'; ctx.fillText(p.label,px-18,py-16); });
+  if(Math.abs(b)>0.01){ const y0=(-c)/b, y1=(-a-c)/b; ctx.strokeStyle='rgba(0,71,255,.55)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(pad,H-pad-y0*(H-2*pad)); ctx.lineTo(W-pad,H-pad-y1*(H-2*pad)); ctx.stroke(); }
+  document.getElementById('c9-msg').textContent='No matter how you drag the line, XOR defeats it.';
+};
+window.c9_answer=function(idx){
+  if(c9_answered) return;
+  c9_answered=true; c9_correct=idx===1;
+  document.querySelectorAll('#c9-choices .choice-btn').forEach((b,i)=>{ if(i===1) b.classList.add('correct'); else if(i===idx&&idx!==1) b.classList.add('wrong'); b.style.pointerEvents='none'; });
+  document.getElementById('c9-evidence').style.display='block';
+  c9_draw();
+};
+window.c9_finish=function(){ addPts('c9',c9_correct?100:35); document.getElementById('c9-proof').style.display='block'; };
+window.init_c9=function(){ c9_answered=false; c9_correct=false; document.getElementById('c9-evidence').style.display='none'; document.getElementById('c9-proof').style.display='none'; document.querySelectorAll('#c9-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';}); document.getElementById('c9-a').value=100; document.getElementById('c9-b').value=100; document.getElementById('c9-c').value=-100; };
+
+const finalCardMap={};
+CARDS.forEach(card=>{ finalCardMap[card.key]=card; });
+finalCardMap.c8={key:'c8',num:'09',icon:'📊',title:'The Voting Machines',concept:'Ensemble Methods',desc:'Can three decent AIs vote better than one?',pts:120,color:'#E8A020'};
+const finalOrderedKeys=['c1','c2','c9','c3','c5','c6','c4','c7','c8'];
+CARDS.length=0;
+finalOrderedKeys.forEach((key,index)=>{
+  const card=finalCardMap[key];
+  if(card){
+    card.num=String(index+1).padStart(2,'0');
+    CARDS.push(card);
+  }
+});
+
+renderGrid=function(){
+  const g=document.getElementById('card-grid');
+  const preview=document.getElementById('finale-preview');
+  g.innerHTML='';
+  let doneCount=0;
+  CARDS.forEach(c=>{
+    const isDone=G.done[c.key];
+    if(isDone) doneCount++;
+    const score=G.scores[c.key]||0;
+    g.innerHTML+=`
+      <div class="card ${isDone?'completed':''}" onclick="startChallenge('${c.key}')">
+        <div class="pts-badge">${isDone?score+' pts':'+'+c.pts+' pts'}</div>
+        <div class="num">${c.num}</div>
+        <div class="icon">${c.icon}</div>
+        <h3>${c.title}</h3>
+        <div class="concept">${c.concept}</div>
+        <div class="desc">${c.desc}</div>
+      </div>`;
+  });
+  document.getElementById('grid-sub').textContent=`${doneCount} / 9 completed · ${G.pts} pts`;
+  document.getElementById('finale-btn').style.display=doneCount>=9?'inline-flex':'none';
+  if(preview){
+    preview.innerHTML=`
+      <div class="card" style="cursor:default;border-style:dashed;background:linear-gradient(180deg, rgba(232,160,32,.04), #fff);">
+        <div class="pts-badge" style="background:${doneCount>=9?'rgba(0,184,138,.12)':'rgba(7,8,15,.06)'};color:${doneCount>=9?'var(--teal)':'var(--gray)'};">${doneCount>=9?'Unlocked':'Locked until 9/9'}</div>
+        <div class="num">Final Reveal</div>
+        <div class="icon">🌍</div>
+        <h3>Same Math, Real Systems</h3>
+        <div class="concept">Applications Finale</div>
+        <div class="desc">This opens after all 9 challenges and shows 8 AI domains: medicine, finance, aviation, robotics, language, climate, education, and agriculture.</div>
+      </div>`;
+  }
+  renderHudDots();
+};
+
+showFinale=function(){
+  const finale=document.getElementById('finale');
+  finale.style.background='var(--white)';
+  finale.style.color='var(--ink)';
+  finale.innerHTML=`
+    <div class="sub" style="color:var(--gray);">Grand Finale</div>
+    <h1>Same Math, Real Systems</h1>
+    <div class="final-score" id="final-score">${G.pts}</div>
+    <p class="tagline" id="finale-msg" style="color:var(--gray);max-width:820px;">What felt like olympiad-style puzzles is already powering systems people use every day. Here are eight places where the same math shows up for real.</p>
+    <div id="finale-wall" style="width:min(1240px,100%);display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:1rem;"></div>
+    <div class="ai-link" style="width:min(900px,100%);text-align:left;">
+      <div class="ai-label">Closing Thought</div>
+      <p>Distance, probability, combinatorics, recurrence, and attention are not separate chapters anymore. In AI, they meet inside one system.</p>
+    </div>
+    <button class="btn btn-primary" onclick="nav('leaderboard')" style="margin-top:1rem;">See Leaderboard &rarr;</button>
+  `;
+  const domains=[
+    {emoji:'🫀',name:'Medicine',math:'Signals + robustness',blurb:'ECG, MRI, and pathology AI must detect patterns without being fooled by noise.'},
+    {emoji:'💳',name:'Finance',math:'Probability updates',blurb:'Fraud systems keep revising risk after every new transaction.'},
+    {emoji:'✈️',name:'Aviation',math:'Optimization + control',blurb:'Flight planning and maintenance models depend on stable decision rules.'},
+    {emoji:'🤖',name:'Robotics',math:'Recurrence + geometry',blurb:'Robots keep correcting position step by step while avoiding overshoot.'},
+    {emoji:'🗣️',name:'Language',math:'Vectors + attention',blurb:'Chatbots turn words into geometry, then focus on the useful ones.'},
+    {emoji:'🌦️',name:'Climate',math:'Generalization',blurb:'Forecasts must stay reliable on new seasons, regions, and unusual events.'},
+    {emoji:'📚',name:'Education',math:'Prediction + feedback',blurb:'Adaptive tutors estimate what a student understands and choose the next exercise.'},
+    {emoji:'🌱',name:'Agriculture',math:'Vision + classification',blurb:'Drone and satellite AI detect crop stress, irrigation problems, and disease early.'}
+  ];
+  const wall=finale.querySelector('#finale-wall');
+  domains.forEach(domain=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.textAlign='left';
+    card.style.cursor='default';
+    card.style.minHeight='230px';
+    card.style.display='flex';
+    card.style.flexDirection='column';
+    card.innerHTML=`<div class="icon">${domain.emoji}</div><h3>${domain.name}</h3><div class="concept">${domain.math}</div><div class="desc">${domain.blurb}</div>`;
+    wall.appendChild(card);
+  });
+};
+
+setChallengeScreen('c8', `
+<div class="container">
+  <div class="ch-header"><div class="ch-num">Challenge 09</div><div class="ch-icon">📊</div><h2>The Voting Machines</h2></div>
+  <div class="question-box">
+    Three small AIs vote independently on the same image. Each AI is correct with probability <strong>0.7</strong>.<br><br>
+    The final prediction is the <strong>majority vote</strong>.<br><br>
+    <strong>What is the probability that the team is correct?</strong>
+  </div>
+  <div class="hints">
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 1</div><div class="hint-content">The team is correct in exactly two cases: exactly 2 models are correct, or all 3 are correct.</div>
+    <div class="hint-pill" onclick="toggleHint(this)"><span class="hint-icon">💡</span> Hint 2</div><div class="hint-content">Use P(2 correct) = C(3,2)(0.7)^2(0.3) and P(3 correct) = (0.7)^3.</div>
+  </div>
+  <div class="choices" id="c8-choices">
+    <button class="choice-btn" onclick="c8_answer(this,0)">A) 0.490</button>
+    <button class="choice-btn" onclick="c8_answer(this,1)">B) 0.700</button>
+    <button class="choice-btn" onclick="c8_answer(this,2)">C) 0.784</button>
+    <button class="choice-btn" onclick="c8_answer(this,3)">D) 0.910</button>
+  </div>
+  <div id="c8-evidence" style="display:none;">
+    <div class="question-box" style="margin-top:1rem;">
+      Theory says:
+      <strong>P(team correct)=P(exactly 2 correct)+P(3 correct)</strong>
+    </div>
+    <div class="canvas-wrap" style="padding:1rem 1.25rem;">
+      <p class="mono" id="c8-sim-stats">Majority wins: 0 / 0</p>
+      <p id="c8-sim-last" style="color:var(--gray);margin-top:.5rem;">Run a simulation and compare it with the value 0.784.</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;">
+        <button class="btn btn-sm btn-outline" onclick="c8_simulate(25)">Simulate 25 teams</button>
+        <button class="btn btn-sm btn-outline" onclick="c8_simulate(100)">Simulate 100 teams</button>
+        <button class="btn btn-sm btn-primary" id="c8-finish" style="display:none;" onclick="c8_finish()">Reveal proof</button>
+      </div>
+    </div>
+  </div>
+  <div id="c8-proof" style="display:none;">
+    <div class="proof-block">The team is correct if:
+    exactly 2 models are correct
+    or all 3 models are correct
+
+So
+    P(team correct) = C(3,2)(0.7)^2(0.3) + (0.7)^3
+                    = 3(0.49)(0.3) + 0.343
+                    = 0.441 + 0.343
+                    = 0.784
+
+So the majority vote is correct 78.4% of the time,
+which is better than one single model at 70%. <span class="qed">∎</span></div>
+    <div class="ai-link"><div class="ai-label">🤖 AI Connection</div><p>This is why AI teams of models can be powerful. Random forests, weather ensembles, and medical screening systems often combine several decent predictors so the group is more reliable than one model alone.</p></div>
+    <button class="btn btn-primary" onclick="nav('grid')" style="margin-top:1rem;">Back to Challenges &rarr;</button>
+  </div>
+</div>`);
+
+let c8_answered=false,c8_locked=false,c8_choiceCorrect=false,c8_simTotal=0,c8_simWins=0;
+window.c8_answer=function(btn,idx){
+  if(c8_answered) return;
+  c8_answered=true;
+  c8_choiceCorrect=idx===2;
+  document.querySelectorAll('#c8-choices .choice-btn').forEach((b,i)=>{
+    if(i===2) b.classList.add('correct');
+    else if(i===idx&&idx!==2) b.classList.add('wrong');
+    b.style.pointerEvents='none';
+  });
+  document.getElementById('c8-evidence').style.display='block';
+};
+window.c8_simulate=function(batch){
+  for(let i=0;i<batch;i++){
+    let correct=0;
+    if(Math.random()<0.7) correct++;
+    if(Math.random()<0.7) correct++;
+    if(Math.random()<0.7) correct++;
+    if(correct>=2) c8_simWins++;
+    c8_simTotal++;
+  }
+  const rate=c8_simWins/c8_simTotal;
+  document.getElementById('c8-sim-stats').textContent=`Majority wins: ${c8_simWins} / ${c8_simTotal}`;
+  document.getElementById('c8-sim-last').textContent=`Empirical probability ≈ ${rate.toFixed(3)}. The exact value is 0.784.`;
+  document.getElementById('c8-finish').style.display='inline-flex';
+};
+window.c8_finish=function(){
+  if(c8_locked) return;
+  c8_locked=true;
+  let pts=c8_choiceCorrect?100:35;
+  if(c8_simTotal>=100 && Math.abs(c8_simWins/c8_simTotal-0.784)<0.06) pts+=20;
+  addPts('c8',pts);
+  document.getElementById('c8-proof').style.display='block';
+};
+window.init_c8=function(){
+  c8_answered=false;
+  c8_locked=false;
+  c8_choiceCorrect=false;
+  c8_simTotal=0;
+  c8_simWins=0;
+  document.getElementById('c8-evidence').style.display='none';
+  document.getElementById('c8-proof').style.display='none';
+  document.getElementById('c8-sim-stats').textContent='Majority wins: 0 / 0';
+  document.getElementById('c8-sim-last').textContent='Run a simulation and compare it with the value 0.784.';
+  document.getElementById('c8-finish').style.display='none';
+  document.querySelectorAll('#c8-choices .choice-btn').forEach(b=>{b.className='choice-btn';b.style.pointerEvents='auto';});
+};
+
+[['c3','Challenge 04'],['c4','Challenge 07'],['c7','Challenge 08'],['c8','Challenge 09'],['c9','Challenge 03']].forEach(([id,label])=>{
+  const el=document.querySelector(`#${id} .ch-num`);
+  if(el) el.textContent=label;
+});
+
 renderGrid();
 </script>
 </body>
